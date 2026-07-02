@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Save, ShieldCheck, ShieldOff, Trash2 } from "lucide-react";
+import { Copy, KeyRound, Save, ShieldCheck, ShieldOff, Trash2 } from "lucide-react";
 
 export default function PlayerManageForm({
   playerId,
@@ -20,6 +20,8 @@ export default function PlayerManageForm({
   const [saving, setSaving] = useState(false);
   const [togglingRole, setTogglingRole] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [tempPassword, setTempPassword] = useState("");
 
   async function saveName(e: React.FormEvent) {
     e.preventDefault();
@@ -66,6 +68,26 @@ export default function PlayerManageForm({
     }
   }
 
+  async function resetPassword() {
+    if (!confirm(`Generate a new temporary password for ${initialName}? Their current password will stop working immediately.`))
+      return;
+    setError("");
+    setSuccess("");
+    setTempPassword("");
+    setResetting(true);
+    try {
+      const res = await fetch(`/api/admin/players/${playerId}/reset-password`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Something went wrong.");
+        return;
+      }
+      setTempPassword(data.tempPassword);
+    } finally {
+      setResetting(false);
+    }
+  }
+
   async function deletePlayer() {
     if (!confirm(`Permanently delete ${initialName}? This removes their answers and log history.`)) return;
     setError("");
@@ -109,7 +131,35 @@ export default function PlayerManageForm({
       {error && <p className="mt-3 text-sm text-rose-400">{error}</p>}
       {success && <p className="mt-3 text-sm text-emerald-400">{success}</p>}
 
+      {tempPassword && (
+        <div className="mt-4 rounded-xl border border-ember-500/40 bg-ember-500/10 p-4">
+          <p className="text-sm text-ember-200">
+            New temporary password &mdash; share this with {initialName} now. It won&apos;t be shown again, and they should
+            change it from their Profile page after logging in.
+          </p>
+          <div className="mt-2 flex items-center gap-2">
+            <code className="flex-1 rounded-lg border border-ash-800 bg-bg-panel px-3 py-2 font-mono text-sm text-ash-100">
+              {tempPassword}
+            </code>
+            <button
+              type="button"
+              onClick={() => navigator.clipboard.writeText(tempPassword)}
+              className="flex items-center gap-1.5 rounded-lg border border-ash-700 px-3 py-2 text-xs font-medium text-ash-200 hover:border-ember-500 hover:text-ember-200"
+            >
+              <Copy className="h-3.5 w-3.5" /> Copy
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="mt-5 flex flex-wrap gap-3 border-t border-ash-900 pt-5">
+        <button
+          onClick={resetPassword}
+          disabled={resetting}
+          className="flex items-center gap-1.5 rounded-lg border border-ash-700 px-4 py-2 text-sm font-medium text-ash-200 hover:border-ember-500 hover:text-ember-200 disabled:opacity-50"
+        >
+          <KeyRound className="h-4 w-4" /> Reset Password
+        </button>
         <button
           onClick={toggleRole}
           disabled={togglingRole}

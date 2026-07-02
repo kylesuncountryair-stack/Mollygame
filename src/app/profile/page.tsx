@@ -4,6 +4,7 @@ import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
 import BonfireVisual from "@/components/BonfireVisual";
 import Badge from "@/components/Badge";
 import StatCard from "@/components/StatCard";
+import ChangePasswordForm from "@/components/ChangePasswordForm";
 import { CheckCircle2, ListChecks, XCircle } from "lucide-react";
 
 export default async function ProfilePage() {
@@ -76,6 +77,8 @@ export default async function ProfilePage() {
           </div>
         )}
       </div>
+
+      <ChangePasswordForm />
     </div>
   );
 }

@@ -13,6 +13,7 @@ export default function AuthForm() {
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgotHelp, setShowForgotHelp] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -98,15 +99,48 @@ export default function AuthForm() {
           />
         </div>
 
-        <label className="flex select-none items-center gap-2 text-sm text-ash-400">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="h-4 w-4 rounded accent-ember-500"
-          />
-          Remember me
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="flex select-none items-center gap-2 text-sm text-ash-400">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="h-4 w-4 rounded accent-ember-500"
+            />
+            Remember me
+          </label>
+
+          {mode === "login" && (
+            <button
+              type="button"
+              onClick={() => setShowForgotHelp((v) => !v)}
+              className="text-sm text-ash-400 underline-offset-2 hover:text-ember-300 hover:underline"
+            >
+              Forgot password?
+            </button>
+          )}
+        </div>
+
+        {showForgotHelp && mode === "login" && (
+          <div className="rounded-lg border border-ash-800 bg-bg-panel p-3 text-sm text-ash-300">
+            Password resets are handled by your admin, not automatically by email. Ask them to generate a
+            temporary password for you from the admin portal
+            {process.env.NEXT_PUBLIC_ADMIN_CONTACT_EMAIL ? (
+              <>
+                {" "}
+                (
+                <a
+                  href={`mailto:${process.env.NEXT_PUBLIC_ADMIN_CONTACT_EMAIL}`}
+                  className="text-ember-300 underline"
+                >
+                  {process.env.NEXT_PUBLIC_ADMIN_CONTACT_EMAIL}
+                </a>
+                )
+              </>
+            ) : null}
+            . Once you log in with it, you can set your own password from the Profile page.
+          </div>
+        )}
 
         {error && <p className="text-sm text-rose-400">{error}</p>}
 
