@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PLAYER
+  ADMIN
+}
+
+enum QuestionType {
+  DAILY
+  WEEKLY
+}
+
+enum TransactionType {
+  QUESTION_CORRECT
+  ADMIN_GRANT
+  ADMIN_ADJUST
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  passwordSalt String
+  role         Role     @default(PLAYER)
+  createdAt    DateTime @default(now())
+
+  answers             Answer[]
+  logTransactions     LogTransaction[] @relation("PlayerTransactions")
+  issuedTransactions  LogTransaction[] @relation("IssuedByAdmin")
+}
+
+model Question {
+  id           String       @id @default(cuid())
+  type         QuestionType
+  prompt       String
+  options      Json
+  correctIndex Int
+  logsReward   Int          @default(1)
+  activeDate   DateTime
+  createdAt    DateTime     @default(now())
+
+  answers Answer[]
+
+  @@index([type, activeDate])
+}
+
+model Answer {
+  id            String   @id @default(cuid())
+  userId        String
+  questionId    String
+  selectedIndex Int
+  isCorrect     Boolean
+  logsAwarded   Int
+  answeredAt    DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+}
+
+model LogTransaction {
+  id         String          @id @default(cuid())
+  userId     String
+  amount     Int
+  reason     String
+  type       TransactionType
+  issuedById String?
+  createdAt  DateTime        @default(now())
+
+  user     User  @relation("PlayerTransactions", fields: [userId], references: [id], onDelete: Cascade)
+  issuedBy User? @relation("IssuedByAdmin", fields: [issuedById], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}
