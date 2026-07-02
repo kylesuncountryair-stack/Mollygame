@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdminApi } from "@/lib/session";
 
 export async function GET() {
+  if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const questions = await prisma.question.findMany({ orderBy: { activeDate: "desc" } });
   return NextResponse.json({ questions });
 }
 
 export async function POST(req: Request) {
+  if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json().catch(() => null);
   const { type, prompt, options, correctIndex, logsReward, activeDate } = body || {};
 

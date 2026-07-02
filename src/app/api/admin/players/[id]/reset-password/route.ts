@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
+import { requireAdminApi } from "@/lib/session";
 
 function generateTempPassword(): string {
   // 10 random alphanumeric characters, easy to read aloud/type, no ambiguous look-alikes.
@@ -13,6 +14,7 @@ function generateTempPassword(): string {
 }
 
 export async function POST(_req: Request, { params }: { params: { id: string } }) {
+  if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const player = await prisma.user.findUnique({ where: { id: params.id } });
   if (!player) return NextResponse.json({ error: "Player not found." }, { status: 404 });
 

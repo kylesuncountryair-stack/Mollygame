@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdminApi } from "@/lib/session";
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json().catch(() => null);
   const { type, prompt, options, correctIndex, logsReward, activeDate } = body || {};
 
@@ -18,6 +20,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   await prisma.question.delete({ where: { id: params.id } });
   return NextResponse.json({ ok: true });
 }

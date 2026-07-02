@@ -1,9 +1,11 @@
 import { Flame, Medal } from "lucide-react";
+import Badge from "@/components/Badge";
 
 export type LeaderboardRow = {
   id: string;
   rank: number;
   name: string;
+  role?: "PLAYER" | "ADMIN";
   monthlyLogs: number;
   allTimeLogs: number;
   tier: string;
@@ -17,7 +19,7 @@ const medalColor: Record<number, string> = {
 
 export default function LeaderboardTable({ rows, highlightId }: { rows: LeaderboardRow[]; highlightId?: string }) {
   if (rows.length === 0) {
-    return <div className="rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">No players yet.</div>;
+    return <div className="rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">No one on the board yet.</div>;
   }
 
   return (
@@ -43,7 +45,12 @@ export default function LeaderboardTable({ rows, highlightId }: { rows: Leaderbo
                   {r.rank <= 3 ? <Medal className="h-4 w-4" /> : null}#{r.rank}
                 </span>
               </td>
-              <td className="px-5 py-3 text-ash-100">{r.name}</td>
+              <td className="px-5 py-3 text-ash-100">
+                <span className="flex items-center gap-2">
+                  {r.name}
+                  {r.role === "ADMIN" && <Badge tone="neutral">Admin</Badge>}
+                </span>
+              </td>
               <td className="px-5 py-3 text-ember-300">{r.tier}</td>
               <td className="px-5 py-3 text-right font-semibold text-ash-100">
                 <span className="inline-flex items-center gap-1">

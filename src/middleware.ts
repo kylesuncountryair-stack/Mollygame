@@ -23,20 +23,22 @@ export async function middleware(req: NextRequest) {
   const secret = process.env.AUTH_SECRET || "";
   const session = token && secret ? await verifyToken(token, secret) : null;
 
-  const isAdminPath = pathname.startsWith("/admin") || pathname.startsWith("/api/admin");
-  const isProtectedPage = pathname.startsWith("/dashboard") || pathname.startsWith("/leaderboard") || pathname.startsWith("/profile");
+  const isProtectedPage =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/leaderboard") ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/admin");
   const isProtectedApi = pathname.startsWith("/api/") && !PUBLIC_PATHS.includes(pathname);
 
-  if (isAdminPath) {
-    if (!session || session.role !== "ADMIN") {
-      if (pathname.startsWith("/api/")) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-      }
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-    return NextResponse.next();
-  }
-
+  // Middleware only confirms "is this a logged-in user at all" using the
+  // JWT — it does NOT gate on the JWT's role claim. The role claim is a
+  // stale snapshot from login time, so if middleware also rejected based
+  // on it, someone freshly promoted to admin would still get bounced here
+  // before ever reaching the Node.js layer that checks their real,
+  // current role from the database (see requireAdmin/requireAdminApi in
+  // src/lib/session.ts, used by the admin layout and every /api/admin/*
+  // route). Those do the actual admin authorization; this just requires
+  // *a* valid login.
   if (isProtectedPage || isProtectedApi) {
     if (!session) {
       if (pathname.startsWith("/api/")) {

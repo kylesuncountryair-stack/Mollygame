@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { signToken, verifyToken, type SessionPayload } from "./token";
+import { prisma } from "./prisma";
 
 export const SESSION_COOKIE = "bonfire_session";
 const REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30; // 30 days, "remember me" checked
@@ -57,8 +58,33 @@ export async function requireSession() {
   return session;
 }
 
+// The JWT's "role" claim is fixed at login time and can be trusted for up to
+// 30 days (see REMEMBER_ME_SECONDS above). If an admin changes someone's
+// role afterward — via the admin portal's promote/demote button, or by
+// hand in the database — that person's existing session token doesn't
+// know about it. Re-checking against the database here means role changes
+// take effect on their very next admin-gated request, not just after they
+// happen to log out and back in.
+export async function isCurrentlyAdmin(userId: string): Promise<boolean> {
+  const fresh = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+  return fresh?.role === "ADMIN";
+}
+
 export async function requireAdmin() {
   const session = await requireSession();
-  if (session.role !== "ADMIN") redirect("/dashboard");
-  return session;
+  // Deliberately ignore session.role here — it's only ever a stale snapshot
+  // from login time. isCurrentlyAdmin() is the real source of truth.
+  if (!(await isCurrentlyAdmin(session.sub))) redirect("/dashboard");
+  // Return the confirmed-fresh role so anything reading session.role
+  // downstream (e.g. the Navbar's "Admin" link) reflects reality too.
+  return { ...session, role: "ADMIN" as const };
+}
+
+// Same idea, for use inside API route handlers, which need a 403 JSON
+// response instead of a redirect.
+export async function requireAdminApi(): Promise<SessionPayload | null> {
+  const session = await getCurrentSession();
+  if (!session) return null;
+  if (!(await isCurrentlyAdmin(session.sub))) return null;
+  return { ...session, role: "ADMIN" };
 }

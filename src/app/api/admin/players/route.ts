@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
+import { requireAdminApi } from "@/lib/session";
 
 export async function GET() {
+  if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const players = await prisma.user.findMany({
     where: { role: "PLAYER" },
     select: { id: true, name: true, email: true, createdAt: true },

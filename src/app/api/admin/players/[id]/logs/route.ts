@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentSession } from "@/lib/session";
+import { requireAdminApi } from "@/lib/session";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
-  const session = await getCurrentSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await requireAdminApi();
+  if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => null);
   const amount = body?.amount;

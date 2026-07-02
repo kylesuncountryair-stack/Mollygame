@@ -6,7 +6,7 @@ import LeaderboardTable, { type LeaderboardRow } from "@/components/LeaderboardT
 export default async function LeaderboardPage() {
   const session = await getCurrentSession();
 
-  const players = await prisma.user.findMany({ where: { role: "PLAYER" }, select: { id: true, name: true } });
+  const players = await prisma.user.findMany({ select: { id: true, name: true, role: true } });
   const [monthlySums, allTimeSums] = await Promise.all([
     prisma.logTransaction.groupBy({ by: ["userId"], where: { createdAt: { gte: startOfMonthUTC() } }, _sum: { amount: true } }),
     prisma.logTransaction.groupBy({ by: ["userId"], _sum: { amount: true } }),
@@ -18,7 +18,15 @@ export default async function LeaderboardPage() {
     .map((p) => {
       const monthlyLogs = monthlyMap.get(p.id) ?? 0;
       const allTimeLogs = allTimeMap.get(p.id) ?? 0;
-      return { id: p.id, name: p.name, monthlyLogs, allTimeLogs, tier: getTierForLogs(monthlyLogs).label, rank: 0 };
+      return {
+        id: p.id,
+        name: p.name,
+        role: p.role,
+        monthlyLogs,
+        allTimeLogs,
+        tier: getTierForLogs(monthlyLogs).label,
+        rank: 0,
+      };
     })
     .sort((a, b) => b.monthlyLogs - a.monthlyLogs || b.allTimeLogs - a.allTimeLogs)
     .map((r, i) => ({ ...r, rank: i + 1 }));

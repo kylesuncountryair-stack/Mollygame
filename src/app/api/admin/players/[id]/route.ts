@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getTierForLogs, startOfMonthUTC } from "@/lib/bonfire";
-import { getCurrentSession } from "@/lib/session";
+import { getCurrentSession, requireAdminApi } from "@/lib/session";
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
+  if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const player = await prisma.user.findUnique({
     where: { id: params.id },
     select: { id: true, name: true, email: true, role: true, createdAt: true },
@@ -56,6 +57,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 }
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json().catch(() => null);
   const name = typeof body?.name === "string" ? body.name.trim() : undefined;
   const role = body?.role;
@@ -89,6 +91,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const session = await getCurrentSession();
   if (session?.sub === params.id) {
     return NextResponse.json({ error: "You can't delete your own account while logged in as it." }, { status: 400 });

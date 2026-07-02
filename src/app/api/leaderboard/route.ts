@@ -8,7 +8,7 @@ import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const players = await prisma.user.findMany({ where: { role: "PLAYER" }, select: { id: true, name: true, email: true } });
+  const players = await prisma.user.findMany({ select: { id: true, name: true, email: true, role: true } });
 
   const [monthlySums, allTimeSums] = await Promise.all([
     prisma.logTransaction.groupBy({
@@ -32,6 +32,7 @@ export async function GET() {
     return {
       id: p.id,
       name: p.name,
+      role: p.role,
       monthlyLogs,
       allTimeLogs,
       tier: tier.label,
