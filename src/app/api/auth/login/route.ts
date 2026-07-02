@@ -1,21 +1,42 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword } from "@/lib/password";
+import { hashPassword } from "@/lib/password";
 import { createSessionCookie } from "@/lib/session";
+import { isValidEmail, isValidPassword, emailDomainAllowed, isAdminEmail } from "@/lib/validation";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const email = (body?.email || "").trim().toLowerCase();
+  const name = (body?.name || "").trim();
   const password = body?.password || "";
 
-  if (!email || !password) {
-    return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
+  if (!isValidEmail(email)) {
+    return NextResponse.json({ error: "Please enter a valid work email address." }, { status: 400 });
+  }
+  if (!emailDomainAllowed(email)) {
+    return NextResponse.json(
+      { error: `Signups are restricted to @${process.env.ALLOWED_EMAIL_DOMAIN} email addresses.` },
+      { status: 400 }
+    );
+  }
+  if (!name || name.length < 2) {
+    return NextResponse.json({ error: "Please enter your name." }, { status: 400 });
+  }
+  if (!isValidPassword(password)) {
+    return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !verifyPassword(password, user.passwordSalt, user.passwordHash)) {
-    return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    return NextResponse.json({ error: "An account with that email already exists." }, { status: 409 });
   }
+
+  const { hash, salt } = hashPassword(password);
+  const role = isAdminEmail(email) ? "ADMIN" : "PLAYER";
+
+  const user = await prisma.user.create({
+    data: { email, name, passwordHash: hash, passwordSalt: salt, role },
+  });
 
   await createSessionCookie(user);
 
