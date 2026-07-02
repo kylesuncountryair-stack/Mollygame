@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/password";
 import { createSessionCookie } from "@/lib/session";
-import { isValidEmail, isValidPassword, emailDomainAllowed } from "@/lib/validation";
+import { isValidEmail, isValidPassword, emailDomainAllowed, isAdminEmail } from "@/lib/validation";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const email = (body?.email || "").trim().toLowerCase();
   const name = (body?.name || "").trim();
   const password = body?.password || "";
+  const remember = body?.remember !== false;
 
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "Please enter a valid work email address." }, { status: 400 });
@@ -32,13 +33,13 @@ export async function POST(req: Request) {
   }
 
   const { hash, salt } = hashPassword(password);
-  const role = process.env.ADMIN_EMAIL && email === process.env.ADMIN_EMAIL.toLowerCase() ? "ADMIN" : "PLAYER";
+  const role = isAdminEmail(email) ? "ADMIN" : "PLAYER";
 
   const user = await prisma.user.create({
     data: { email, name, passwordHash: hash, passwordSalt: salt, role },
   });
 
-  await createSessionCookie(user);
+  await createSessionCookie(user, remember);
 
   return NextResponse.json({ id: user.id, email: user.email, name: user.name, role: user.role });
 }

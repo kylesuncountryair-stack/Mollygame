@@ -3,11 +3,18 @@ import { prisma } from "@/lib/prisma";
 import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
 
 export default async function AdminPlayersPage() {
-  const players = await prisma.user.findMany({
-    where: { role: "PLAYER" },
-    select: { id: true, name: true, email: true, createdAt: true },
-    orderBy: { createdAt: "asc" },
-  });
+  const [players, admins] = await Promise.all([
+    prisma.user.findMany({
+      where: { role: "PLAYER" },
+      select: { id: true, name: true, email: true, createdAt: true },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.user.findMany({
+      where: { role: "ADMIN" },
+      select: { id: true, name: true, email: true, createdAt: true },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
   const [answerCounts, allTimeSums, monthlySums] = await Promise.all([
     prisma.answer.groupBy({ by: ["userId", "isCorrect"], _count: { _all: true } }),
@@ -82,6 +89,36 @@ export default async function AdminPlayersPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {admins.length > 0 && (
+        <div>
+          <h2 className="mb-3 font-display text-lg font-semibold text-ash-100">Admins</h2>
+          <div className="overflow-x-auto rounded-2xl border border-ash-900 bg-bg-card">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-bg-panel text-ash-500">
+                <tr>
+                  <th className="px-5 py-3 font-medium">Name</th>
+                  <th className="px-5 py-3 font-medium">Email</th>
+                  <th className="px-5 py-3 font-medium text-right">Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                {admins.map((a) => (
+                  <tr key={a.id} className="border-t border-ash-900 hover:bg-ash-900/40">
+                    <td className="px-5 py-3">
+                      <Link href={`/admin/players/${a.id}`} className="font-medium text-ember-300 hover:underline">
+                        {a.name}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3 text-ash-500">{a.email}</td>
+                    <td className="px-5 py-3 text-right text-ash-500">{new Date(a.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

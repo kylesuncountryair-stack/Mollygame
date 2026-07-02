@@ -10,6 +10,7 @@ export default function AuthForm() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +22,7 @@ export default function AuthForm() {
       const res = await fetch(`/api/auth/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(mode === "signup" ? { email, name, password } : { email, password }),
+        body: JSON.stringify(mode === "signup" ? { email, name, password, remember } : { email, password, remember }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -96,6 +97,16 @@ export default function AuthForm() {
             placeholder="At least 8 characters"
           />
         </div>
+
+        <label className="flex select-none items-center gap-2 text-sm text-ash-400">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+            className="h-4 w-4 rounded accent-ember-500"
+          />
+          Remember me
+        </label>
 
         {error && <p className="text-sm text-rose-400">{error}</p>}
 

@@ -4,6 +4,7 @@ import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
 import Badge from "@/components/Badge";
 import StatCard from "@/components/StatCard";
 import IssueLogsForm from "@/components/admin/IssueLogsForm";
+import PlayerManageForm from "@/components/admin/PlayerManageForm";
 import { CheckCircle2, Flame, ListChecks, XCircle } from "lucide-react";
 
 export default async function AdminPlayerDetailPage({ params }: { params: { id: string } }) {
@@ -11,7 +12,7 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
     where: { id: params.id },
     select: { id: true, name: true, email: true, createdAt: true, role: true },
   });
-  if (!player || player.role !== "PLAYER") notFound();
+  if (!player) notFound();
 
   const [answers, transactions, allTimeSum, monthlySum] = await Promise.all([
     prisma.answer.findMany({ where: { userId: params.id }, include: { question: true }, orderBy: { answeredAt: "desc" } }),
@@ -31,11 +32,14 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-ash-100">{player.name}</h1>
-        <p className="text-ash-500">
-          {player.email} &middot; joined {new Date(player.createdAt).toLocaleDateString()} &middot; {getTierForLogs(monthlyLogs).label} tier
-        </p>
+      <div className="flex items-center gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-ash-100">{player.name}</h1>
+          <p className="text-ash-500">
+            {player.email} &middot; joined {new Date(player.createdAt).toLocaleDateString()} &middot; {getTierForLogs(monthlyLogs).label} tier
+          </p>
+        </div>
+        <Badge tone={player.role === "ADMIN" ? "ember" : "neutral"}>{player.role}</Badge>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -44,6 +48,8 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
         <StatCard icon={XCircle} label="Wrong" value={wrong} />
         <StatCard icon={Flame} label="Total logs" value={allTimeLogs} hint={`${monthlyLogs} this month`} />
       </div>
+
+      <PlayerManageForm playerId={player.id} initialName={player.name} role={player.role} />
 
       <IssueLogsForm playerId={player.id} />
 

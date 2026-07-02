@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { signToken, verifyToken, type SessionPayload } from "./token";
 
 export const SESSION_COOKIE = "bonfire_session";
-const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 7; // 7 days
+const REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30; // 30 days, "remember me" checked
+const DEFAULT_SECONDS = 60 * 60 * 24; // 1 day server-side cap when not remembered
 
 function getSecret(): string {
   const secret = process.env.AUTH_SECRET;
@@ -11,13 +12,17 @@ function getSecret(): string {
   return secret;
 }
 
-export async function createSessionCookie(user: { id: string; email: string; name: string; role: "PLAYER" | "ADMIN" }) {
+export async function createSessionCookie(
+  user: { id: string; email: string; name: string; role: "PLAYER" | "ADMIN" },
+  remember: boolean = true
+) {
+  const duration = remember ? REMEMBER_ME_SECONDS : DEFAULT_SECONDS;
   const payload: SessionPayload = {
     sub: user.id,
     email: user.email,
     name: user.name,
     role: user.role,
-    exp: Math.floor(Date.now() / 1000) + SESSION_DURATION_SECONDS,
+    exp: Math.floor(Date.now() / 1000) + duration,
   };
   const token = await signToken(payload, getSecret());
   const store = await cookies();
@@ -26,7 +31,11 @@ export async function createSessionCookie(user: { id: string; email: string; nam
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: SESSION_DURATION_SECONDS,
+    // Omitting maxAge when "remember" is off makes this a session cookie,
+    // so it's cleared automatically when the browser closes. The 1-day
+    // exp embedded in the token above is a server-side backstop in case
+    // the browser is left open longer than that.
+    ...(remember ? { maxAge: duration } : {}),
   });
 }
 
