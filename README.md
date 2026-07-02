@@ -1,4 +1,4 @@
-# Bonfire
+# Sun Country Q3 Bonfire Challenge
 
 A game where players answer daily and weekly trivia questions to earn **Logs**, building the biggest **Bonfire** each month. Includes a leaderboard, work-email login, and a full admin portal for managing questions and players.
 

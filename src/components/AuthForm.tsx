@@ -41,7 +41,7 @@ export default function AuthForm() {
     <div className="w-full max-w-sm rounded-2xl border border-ash-900 bg-bg-card p-8 shadow-glow">
       <div className="mb-6 flex flex-col items-center gap-2 text-center">
         <Flame className="h-10 w-10 text-ember-400" />
-        <h1 className="font-display text-2xl font-bold text-ash-100">Bonfire</h1>
+        <h1 className="font-display text-xl font-bold leading-tight text-ash-100">Sun Country Q3 Bonfire Challenge</h1>
         <p className="text-sm text-ash-500">Answer questions. Earn logs. Build the biggest bonfire.</p>
       </div>
 

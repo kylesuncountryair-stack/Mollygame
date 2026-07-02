@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 const baloo = Baloo_2({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-display" });
 
 export const metadata: Metadata = {
-  title: "Bonfire",
+  title: "Sun Country Q3 Bonfire Challenge",
   description: "Answer questions, earn logs, build the biggest bonfire.",
 };
 

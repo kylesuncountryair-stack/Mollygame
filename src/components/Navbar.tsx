@@ -24,9 +24,10 @@ export default function Navbar({ name, role }: { name: string; role: "PLAYER" | 
   return (
     <header className="sticky top-0 z-30 border-b border-ash-900 bg-bg/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <Link href="/dashboard" className="flex items-center gap-2 font-display text-lg font-bold text-ember-200">
-          <Flame className="h-6 w-6 text-ember-400" />
-          Bonfire
+        <Link href="/dashboard" className="flex shrink-0 items-center gap-2 font-display text-base font-bold text-ember-200">
+          <Flame className="h-6 w-6 shrink-0 text-ember-400" />
+          <span className="hidden md:inline">Sun Country Q3 Bonfire Challenge</span>
+          <span className="md:hidden">Bonfire Challenge</span>
         </Link>
 
         <nav className="flex items-center gap-1">
