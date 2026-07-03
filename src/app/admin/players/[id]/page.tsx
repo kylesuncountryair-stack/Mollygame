@@ -6,7 +6,8 @@ import Avatar from "@/components/Avatar";
 import StatCard from "@/components/StatCard";
 import IssueLogsForm from "@/components/admin/IssueLogsForm";
 import PlayerManageForm from "@/components/admin/PlayerManageForm";
-import { CheckCircle2, Flame, ListChecks, XCircle } from "lucide-react";
+import SectionHeader from "@/components/SectionHeader";
+import { CheckCircle2, Flame, ListChecks, Receipt, XCircle } from "lucide-react";
 
 export default async function AdminPlayerDetailPage({ params }: { params: { id: string } }) {
   const player = await prisma.user.findUnique({
@@ -56,9 +57,12 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
       <IssueLogsForm playerId={player.id} />
 
       <div>
-        <h2 className="mb-3 font-display text-lg font-semibold text-ash-100">Answer History</h2>
+        <SectionHeader icon={ListChecks} tone="navy" title="Answer History" className="mb-4" />
         {answers.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-ash-700 p-6 text-center text-ash-500">No answers yet.</div>
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ash-700 p-6 text-center text-ash-500">
+            <ListChecks className="h-6 w-6 text-ash-600" />
+            <p>No answers yet.</p>
+          </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-ash-900 bg-bg-card shadow-card">
             <table className="w-full text-left text-sm">
@@ -90,9 +94,12 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
       </div>
 
       <div>
-        <h2 className="mb-3 font-display text-lg font-semibold text-ash-100">Log Transaction History</h2>
+        <SectionHeader icon={Receipt} tone="ember" title="Log Transaction History" className="mb-4" />
         {transactions.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-ash-700 p-6 text-center text-ash-500">No log transactions yet.</div>
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ash-700 p-6 text-center text-ash-500">
+            <Receipt className="h-6 w-6 text-ash-600" />
+            <p>No log transactions yet.</p>
+          </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-ash-900 bg-bg-card shadow-card">
             <table className="w-full text-left text-sm">

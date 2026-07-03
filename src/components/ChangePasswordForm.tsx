@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { KeyRound } from "lucide-react";
+import SectionHeader from "@/components/SectionHeader";
 
 export default function ChangePasswordForm() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -44,9 +45,7 @@ export default function ChangePasswordForm() {
 
   return (
     <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
-      <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-ash-100">
-        <KeyRound className="h-5 w-5 text-ember-400" /> Change Password
-      </h2>
+      <SectionHeader icon={KeyRound} tone="ember" title="Change Password" className="mb-4" />
       <form onSubmit={submit} className="max-w-sm space-y-3">
         <div>
           <label className="mb-1 block text-xs font-medium text-ash-400">Current Password</label>

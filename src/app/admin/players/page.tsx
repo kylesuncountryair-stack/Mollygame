@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
 import Avatar from "@/components/Avatar";
+import SectionHeader from "@/components/SectionHeader";
+import { ShieldCheck, Users } from "lucide-react";
 
 export default async function AdminPlayersPage() {
   const [players, admins] = await Promise.all([
@@ -55,7 +57,10 @@ export default async function AdminPlayersPage() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">No players yet.</div>
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">
+          <Users className="h-6 w-6 text-ash-600" />
+          <p>No players yet.</p>
+        </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-ash-900 bg-bg-card shadow-card">
           <table className="w-full text-left text-sm">
@@ -96,7 +101,7 @@ export default async function AdminPlayersPage() {
 
       {admins.length > 0 && (
         <div>
-          <h2 className="mb-3 font-display text-lg font-semibold text-ash-100">Admins</h2>
+          <SectionHeader icon={ShieldCheck} tone="navy" title="Admins" className="mb-4" />
           <div className="overflow-x-auto rounded-2xl border border-ash-900 bg-bg-card shadow-card">
             <table className="w-full text-left text-sm">
               <thead className="bg-bg-panel text-ash-500">

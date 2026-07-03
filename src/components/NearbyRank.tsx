@@ -1,6 +1,7 @@
-import { Flame } from "lucide-react";
+import { Award, Flame } from "lucide-react";
 import Badge from "@/components/Badge";
 import Avatar from "@/components/Avatar";
+import SectionHeader from "@/components/SectionHeader";
 import type { LeaderboardRow } from "@/lib/leaderboard";
 
 export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; selfId: string }) {
@@ -13,15 +14,18 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
 
   return (
     <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
-      <h2 className="mb-1 font-display text-lg font-semibold text-ash-100">Your Rank</h2>
-      <p className="mb-4 text-sm text-ash-500">
-        #{rows[selfIndex].rank} of {rows.length} this month
-      </p>
+      <SectionHeader
+        icon={Award}
+        tone="gold"
+        title="Your Rank"
+        subtitle={`#${rows[selfIndex].rank} of ${rows.length} this month`}
+        className="mb-4"
+      />
       <div className="space-y-1.5">
         {nearby.map((row) => (
           <div
             key={row.id}
-            className={`flex items-center justify-between rounded-lg border border-transparent px-3 py-2 text-sm transition-all ${
+            className={`flex items-center justify-between rounded-xl border border-transparent px-3 py-2 text-sm transition-all ${
               row.id === selfId
                 ? "scale-[1.02] border-navy-300 bg-gradient-to-r from-navy-300/20 to-navy-300/5 shadow-[0_4px_14px_rgba(74,158,255,0.15)]"
                 : "hover:border-ash-700 hover:bg-bg-panel"

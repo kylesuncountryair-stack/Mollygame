@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Copy, KeyRound, Save, ShieldCheck, ShieldOff, Trash2 } from "lucide-react";
+import { Copy, KeyRound, Save, ShieldCheck, ShieldOff, Trash2, UserCog } from "lucide-react";
+import SectionHeader from "@/components/SectionHeader";
 
 export default function PlayerManageForm({
   playerId,
@@ -108,7 +109,7 @@ export default function PlayerManageForm({
 
   return (
     <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
-      <h3 className="mb-4 font-display text-lg font-semibold text-ash-100">Manage Player</h3>
+      <SectionHeader icon={UserCog} tone="navy" title="Manage Player" as="h3" className="mb-4" />
 
       <form onSubmit={saveName} className="flex items-end gap-2">
         <div className="flex-1">

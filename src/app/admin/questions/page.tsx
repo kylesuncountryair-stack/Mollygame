@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import QuestionForm from "@/components/admin/QuestionForm";
 import QuestionsList, { type AdminQuestion } from "@/components/admin/QuestionsList";
+import SectionHeader from "@/components/SectionHeader";
+import { HelpCircle } from "lucide-react";
 
 export default async function AdminQuestionsPage() {
   const questions = await prisma.question.findMany({ orderBy: { activeDate: "desc" } });
@@ -25,7 +27,7 @@ export default async function AdminQuestionsPage() {
       <QuestionForm />
 
       <div>
-        <h2 className="mb-3 font-display text-lg font-semibold text-ash-100">All Questions</h2>
+        <SectionHeader icon={HelpCircle} tone="gold" title="All Questions" className="mb-4" />
         <QuestionsList questions={rows} />
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flame, Medal, UserCheck, UserPlus } from "lucide-react";
+import { Flame, Medal, Trophy, UserCheck, UserPlus } from "lucide-react";
 import Badge from "@/components/Badge";
 import Avatar from "@/components/Avatar";
 
@@ -63,7 +63,12 @@ export default function LeaderboardTable({
   }
 
   if (rows.length === 0) {
-    return <div className="rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">No one on the board yet.</div>;
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">
+        <Trophy className="h-6 w-6 text-ash-600" />
+        <p>No one on the board yet.</p>
+      </div>
+    );
   }
 
   return (
@@ -119,7 +124,7 @@ export default function LeaderboardTable({
                         className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium disabled:opacity-40 ${
                           following.has(r.id)
                             ? "border-navy-400 bg-navy-500/20 text-navy-100 hover:border-rose-500 hover:text-rose-300"
-                            : "border-ash-700 text-ash-300 hover:border-ember-500 hover:text-ember-200"
+                            : "border-ash-700 text-ash-200 hover:border-ember-500 hover:text-ember-200"
                         }`}
                       >
                         {following.has(r.id) ? (

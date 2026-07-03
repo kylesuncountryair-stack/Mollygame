@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, CalendarRange, Check, Flame, X } from "lucide-react";
+import { CalendarDays, CalendarRange, Check, Flame, HelpCircle, X } from "lucide-react";
 import Badge from "./Badge";
 import Confetti from "./Confetti";
 import TierUpBanner from "./TierUpBanner";
@@ -33,8 +33,9 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
 
   if (!question) {
     return (
-      <div className="rounded-2xl border border-dashed border-ash-700 bg-bg-card/50 p-6 text-center text-ash-500">
-        No question is live right now &mdash; check back soon.
+      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ash-700 bg-bg-card/50 p-6 text-center text-ash-500">
+        <HelpCircle className="h-6 w-6 text-ash-600" />
+        <p>No question is live right now &mdash; check back soon.</p>
       </div>
     );
   }
@@ -111,7 +112,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
         <button
           onClick={submit}
           disabled={selected === null || submitting}
-          className="mt-5 w-full rounded-xl bg-ember-500 py-2.5 font-semibold text-white transition-colors hover:bg-ember-600 disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-5 w-full rounded-lg bg-ember-500 py-2.5 font-semibold text-white transition-colors hover:bg-ember-600 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {submitting ? "Submitting..." : "Submit Answer"}
         </button>

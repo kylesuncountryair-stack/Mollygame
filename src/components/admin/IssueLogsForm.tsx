@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flame, Minus, Plus } from "lucide-react";
+import SectionHeader from "@/components/SectionHeader";
 
 export default function IssueLogsForm({ playerId }: { playerId: string }) {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function IssueLogsForm({ playerId }: { playerId: string }) {
 
   return (
     <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
-      <h3 className="mb-4 font-display text-lg font-semibold text-ash-100">Issue or Adjust Logs</h3>
+      <SectionHeader icon={Flame} tone="ember" title="Issue or Adjust Logs" as="h3" className="mb-4" />
       <div className="grid gap-3 sm:grid-cols-[120px,1fr]">
         <div>
           <label className="mb-1 block text-xs font-medium text-ash-400">Amount</label>
@@ -78,7 +79,7 @@ export default function IssueLogsForm({ playerId }: { playerId: string }) {
         <button
           onClick={() => submit(-1)}
           disabled={loading}
-          className="flex items-center gap-1.5 rounded-lg border border-ash-700 px-4 py-2 text-sm font-semibold text-ash-300 hover:border-rose-500 hover:text-rose-300 disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg border border-ash-700 px-4 py-2 text-sm font-semibold text-ash-200 hover:border-rose-500 hover:text-rose-300 disabled:opacity-50"
         >
           <Minus className="h-4 w-4" /> Remove Logs
         </button>

@@ -6,6 +6,7 @@ import Badge from "@/components/Badge";
 import Avatar from "@/components/Avatar";
 import StatCard from "@/components/StatCard";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
+import SectionHeader from "@/components/SectionHeader";
 import { CheckCircle2, ListChecks, XCircle } from "lucide-react";
 
 export default async function ProfilePage() {
@@ -45,10 +46,11 @@ export default async function ProfilePage() {
       </div>
 
       <div>
-        <h2 className="mb-3 font-display text-lg font-semibold text-ash-100">Answer History</h2>
+        <SectionHeader icon={ListChecks} tone="navy" title="Answer History" className="mb-4" />
         {answers.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">
-            You haven&apos;t answered any questions yet.
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">
+            <ListChecks className="h-6 w-6 text-ash-600" />
+            <p>You haven&apos;t answered any questions yet.</p>
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-ash-900 bg-bg-card shadow-card">

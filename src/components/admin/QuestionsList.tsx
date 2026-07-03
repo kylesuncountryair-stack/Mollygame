@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Flame, Pencil, Trash2 } from "lucide-react";
+import { Flame, HelpCircle, Pencil, Trash2 } from "lucide-react";
 import Badge from "@/components/Badge";
 
 export type AdminQuestion = {
@@ -32,7 +32,12 @@ export default function QuestionsList({ questions }: { questions: AdminQuestion[
   }
 
   if (questions.length === 0) {
-    return <div className="rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">No questions yet.</div>;
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">
+        <HelpCircle className="h-6 w-6 text-ash-600" />
+        <p>No questions yet.</p>
+      </div>
+    );
   }
 
   return (
@@ -65,14 +70,14 @@ export default function QuestionsList({ questions }: { questions: AdminQuestion[
           <div className="flex flex-col gap-2">
             <Link
               href={`/admin/questions/${q.id}`}
-              className="flex items-center gap-1 rounded-lg border border-ash-700 px-3 py-1.5 text-xs text-ash-300 hover:border-ember-500 hover:text-ember-200"
+              className="flex items-center gap-1 rounded-lg border border-ash-700 px-3 py-1.5 text-xs text-ash-200 hover:border-ember-500 hover:text-ember-200"
             >
               <Pencil className="h-3.5 w-3.5" /> Edit
             </Link>
             <button
               onClick={() => remove(q.id)}
               disabled={deletingId === q.id}
-              className="flex items-center gap-1 rounded-lg border border-ash-700 px-3 py-1.5 text-xs text-ash-300 hover:border-rose-500 hover:text-rose-300"
+              className="flex items-center gap-1 rounded-lg border border-ash-700 px-3 py-1.5 text-xs text-ash-200 hover:border-rose-500 hover:text-rose-300"
             >
               <Trash2 className="h-3.5 w-3.5" /> Delete
             </button>

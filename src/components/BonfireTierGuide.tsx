@@ -1,7 +1,9 @@
 "use client";
 
+import { Flame } from "lucide-react";
 import { BONFIRE_TIERS } from "@/lib/bonfire";
 import { FlameGlyph, Logs } from "@/components/BonfireVisual";
+import SectionHeader from "@/components/SectionHeader";
 
 const COL_WIDTH = 200;
 const GROUND_Y = 168;
@@ -12,8 +14,13 @@ export default function BonfireTierGuide() {
 
   return (
     <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
-      <h2 className="mb-1 font-display text-lg font-semibold text-ash-100">Every Phase of the Bonfire</h2>
-      <p className="mb-4 text-sm text-ash-500">Your fire grows as you earn logs this month. Here's what's ahead.</p>
+      <SectionHeader
+        icon={Flame}
+        tone="ember"
+        title="Every Phase of the Bonfire"
+        subtitle="Your fire grows as you earn logs this month. Here's what's ahead."
+        className="mb-4"
+      />
 
       <div className="overflow-x-auto">
         <svg

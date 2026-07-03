@@ -7,6 +7,7 @@ import { Flame, Trash2, UserPlus, Users } from "lucide-react";
 import Badge from "@/components/Badge";
 import Avatar from "@/components/Avatar";
 import Skeleton from "@/components/Skeleton";
+import SectionHeader from "@/components/SectionHeader";
 
 type FriendRow = {
   id: string;
@@ -53,27 +54,27 @@ export default function FriendsWidget({
 
   return (
     <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
-      <div className="mb-1 flex items-center gap-2">
-        <Users className="h-5 w-5 text-ember-400" />
-        <h2 className="font-display text-lg font-semibold text-ash-100">Your Circle</h2>
-      </div>
+      <SectionHeader icon={Users} tone="ember" title="Your Circle" className="mb-4" />
 
       {friends === null ? (
-        <div className="mt-3 space-y-2">
+        <div className="space-y-2">
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} className="h-12 w-full rounded-xl" />
           ))}
         </div>
       ) : friends.length === 0 ? (
-        <div className="mt-3 rounded-xl border border-dashed border-ash-700 p-4 text-sm text-ash-500">
-          You haven&apos;t added anyone yet.{" "}
-          <Link href="/leaderboard" className="text-ember-300 underline">
-            Add people from the Leaderboard
-          </Link>{" "}
-          to track them here.
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-ash-700 p-6 text-center text-sm text-ash-500">
+          <Users className="h-6 w-6 text-ash-600" />
+          <p>
+            You haven&apos;t added anyone yet.{" "}
+            <Link href="/leaderboard" className="text-ember-300 underline">
+              Add people from the Leaderboard
+            </Link>{" "}
+            to track them here.
+          </p>
         </div>
       ) : (
-        <div className="mt-3 space-y-2">
+        <div className="space-y-2">
           {combined.map((row, i) => (
             <div
               key={row.id}
