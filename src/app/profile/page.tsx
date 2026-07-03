@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
 import BonfireVisual from "@/components/BonfireVisual";
 import Badge from "@/components/Badge";
+import Avatar from "@/components/Avatar";
 import StatCard from "@/components/StatCard";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
 import { CheckCircle2, ListChecks, XCircle } from "lucide-react";
@@ -24,9 +25,12 @@ export default async function ProfilePage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-ash-100">{session!.name}</h1>
-        <p className="text-ash-500">{session!.email}</p>
+      <div className="flex items-center gap-3">
+        <Avatar id={session!.sub} name={session!.name} size="md" />
+        <div>
+          <h1 className="font-display text-2xl font-bold text-ash-100">{session!.name}</h1>
+          <p className="text-ash-500">{session!.email}</p>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-[auto,1fr]">

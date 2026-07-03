@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flame, Medal, UserCheck, UserPlus } from "lucide-react";
 import Badge from "@/components/Badge";
+import Avatar from "@/components/Avatar";
 
 export type LeaderboardRow = {
   id: string;
@@ -89,7 +90,8 @@ export default function LeaderboardTable({
                   </span>
                 </td>
                 <td className="px-5 py-3 text-white">
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2.5">
+                    <Avatar id={r.id} name={r.name} />
                     {r.name}
                     {isSelf && <span className="text-xs text-ash-500">(you)</span>}
                     {r.role === "ADMIN" && <Badge tone="neutral">Admin</Badge>}

@@ -1,5 +1,6 @@
 import { Flame } from "lucide-react";
 import Badge from "@/components/Badge";
+import Avatar from "@/components/Avatar";
 import type { LeaderboardRow } from "@/lib/leaderboard";
 
 export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; selfId: string }) {
@@ -26,6 +27,7 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
           >
             <div className="flex items-center gap-2">
               <span className="w-6 font-semibold text-ash-500">#{row.rank}</span>
+              <Avatar id={row.id} name={row.name} />
               <span className="text-ash-100">
                 {row.name}
                 {row.id === selfId && <span className="text-ash-500"> (you)</span>}

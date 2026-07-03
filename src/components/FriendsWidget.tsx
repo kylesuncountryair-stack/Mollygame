@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Flame, Trash2, UserPlus, Users } from "lucide-react";
 import Badge from "@/components/Badge";
+import Avatar from "@/components/Avatar";
 
 type FriendRow = {
   id: string;
@@ -77,6 +78,7 @@ export default function FriendsWidget({
             >
               <div className="flex items-center gap-3">
                 <span className="w-5 text-sm font-semibold text-ash-500">#{i + 1}</span>
+                <Avatar id={row.id} name={row.name} />
                 <span className="text-sm font-medium text-ash-100">
                   {row.name}
                   {row.isMe && <span className="text-ash-500"> (you)</span>}

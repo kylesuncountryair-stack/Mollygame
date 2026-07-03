@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
 import Badge from "@/components/Badge";
+import Avatar from "@/components/Avatar";
 import StatCard from "@/components/StatCard";
 import IssueLogsForm from "@/components/admin/IssueLogsForm";
 import PlayerManageForm from "@/components/admin/PlayerManageForm";
@@ -33,6 +34,7 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-3">
+        <Avatar id={player.id} name={player.name} size="md" />
         <div>
           <h1 className="font-display text-2xl font-bold text-ash-100">{player.name}</h1>
           <p className="text-ash-500">

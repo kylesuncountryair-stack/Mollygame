@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
+import Avatar from "@/components/Avatar";
 
 export default async function AdminPlayersPage() {
   const [players, admins] = await Promise.all([
@@ -74,7 +75,8 @@ export default async function AdminPlayersPage() {
               {rows.map((r) => (
                 <tr key={r.id} className="border-t border-ash-900 hover:bg-ash-900/40">
                   <td className="px-5 py-3">
-                    <Link href={`/admin/players/${r.id}`} className="font-medium text-ember-300 hover:underline">
+                    <Link href={`/admin/players/${r.id}`} className="flex items-center gap-2.5 font-medium text-ember-300 hover:underline">
+                      <Avatar id={r.id} name={r.name} />
                       {r.name}
                     </Link>
                   </td>
@@ -108,7 +110,8 @@ export default async function AdminPlayersPage() {
                 {admins.map((a) => (
                   <tr key={a.id} className="border-t border-ash-900 hover:bg-ash-900/40">
                     <td className="px-5 py-3">
-                      <Link href={`/admin/players/${a.id}`} className="font-medium text-ember-300 hover:underline">
+                      <Link href={`/admin/players/${a.id}`} className="flex items-center gap-2.5 font-medium text-ember-300 hover:underline">
+                        <Avatar id={a.id} name={a.name} />
                         {a.name}
                       </Link>
                     </td>
