@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Flame, Trash2, UserPlus, Users } from "lucide-react";
 import Badge from "@/components/Badge";
@@ -14,8 +15,6 @@ type FriendRow = {
   tier: string;
 };
 
-type Candidate = { id: string; name: string; email: string };
-
 export default function FriendsWidget({
   me,
 }: {
@@ -23,10 +22,6 @@ export default function FriendsWidget({
 }) {
   const router = useRouter();
   const [friends, setFriends] = useState<FriendRow[] | null>(null);
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [selected, setSelected] = useState("");
-  const [error, setError] = useState("");
-  const [adding, setAdding] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
 
   async function loadFriends() {
@@ -35,46 +30,15 @@ export default function FriendsWidget({
     setFriends(data.friends ?? []);
   }
 
-  async function loadCandidates() {
-    const res = await fetch("/api/friends/candidates");
-    const data = await res.json();
-    setCandidates(data.candidates ?? []);
-  }
-
   useEffect(() => {
     loadFriends();
-    loadCandidates();
   }, []);
-
-  async function addFriend(e: React.FormEvent) {
-    e.preventDefault();
-    if (!selected) return;
-    setError("");
-    setAdding(true);
-    try {
-      const res = await fetch("/api/friends", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ followingId: selected }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Something went wrong.");
-        return;
-      }
-      setSelected("");
-      await Promise.all([loadFriends(), loadCandidates()]);
-      router.refresh();
-    } finally {
-      setAdding(false);
-    }
-  }
 
   async function removeFriend(id: string) {
     setRemovingId(id);
     try {
       await fetch(`/api/friends/${id}`, { method: "DELETE" });
-      await Promise.all([loadFriends(), loadCandidates()]);
+      await loadFriends();
       router.refresh();
     } finally {
       setRemovingId(null);
@@ -87,15 +51,23 @@ export default function FriendsWidget({
 
   return (
     <div className="rounded-2xl border border-ash-900 bg-bg-card p-6">
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-1 flex items-center gap-2">
         <Users className="h-5 w-5 text-ember-400" />
         <h2 className="font-display text-lg font-semibold text-ash-100">Your Circle</h2>
       </div>
 
       {friends === null ? (
-        <p className="text-sm text-ash-500">Loading...</p>
+        <p className="mt-3 text-sm text-ash-500">Loading...</p>
+      ) : friends.length === 0 ? (
+        <div className="mt-3 rounded-xl border border-dashed border-ash-700 p-4 text-sm text-ash-500">
+          You haven&apos;t added anyone yet.{" "}
+          <Link href="/leaderboard" className="text-ember-300 underline">
+            Add people from the Leaderboard
+          </Link>{" "}
+          to track them here.
+        </div>
       ) : (
-        <div className="space-y-2">
+        <div className="mt-3 space-y-2">
           {combined.map((row, i) => (
             <div
               key={row.id}
@@ -132,31 +104,12 @@ export default function FriendsWidget({
         </div>
       )}
 
-      <form onSubmit={addFriend} className="mt-4 flex items-center gap-2 border-t border-ash-900 pt-4">
-        <select
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-          className="flex-1 rounded-lg border border-ash-800 bg-bg-panel px-3 py-2 text-sm text-ash-100"
-        >
-          <option value="">Add someone to your circle...</option>
-          {candidates.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name} ({c.email})
-            </option>
-          ))}
-        </select>
-        <button
-          type="submit"
-          disabled={!selected || adding}
-          className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-ember-500 to-ember-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
-        >
-          <UserPlus className="h-4 w-4" /> Add
-        </button>
-      </form>
-      {error && <p className="mt-2 text-sm text-rose-400">{error}</p>}
-      {candidates.length === 0 && friends !== null && friends.length > 0 && (
-        <p className="mt-2 text-xs text-ash-500">Everyone else is already in your circle.</p>
-      )}
+      <Link
+        href="/leaderboard"
+        className="mt-4 flex items-center justify-center gap-1.5 rounded-lg border border-ash-700 py-2 text-sm font-medium text-ash-300 hover:border-ember-500 hover:text-ember-200"
+      >
+        <UserPlus className="h-4 w-4" /> Add someone from the Leaderboard
+      </Link>
     </div>
   );
 }

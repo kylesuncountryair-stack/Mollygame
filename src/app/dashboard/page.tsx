@@ -5,7 +5,6 @@ import { getLeaderboardRows } from "@/lib/leaderboard";
 import { computeStreak } from "@/lib/streak";
 import BonfireVisual from "@/components/BonfireVisual";
 import QuestionCard from "@/components/QuestionCard";
-import StatCard from "@/components/StatCard";
 import NearbyRank from "@/components/NearbyRank";
 import FriendsWidget from "@/components/FriendsWidget";
 import { Award, Flame, Trophy } from "lucide-react";
@@ -66,34 +65,45 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-[auto,1fr]">
-        <div className="flex items-center justify-center rounded-2xl border border-ash-900 bg-bg-card p-8">
-          <BonfireVisual logs={monthlyLogs} />
+        <div className="space-y-4">
+          <div className="flex items-center justify-center rounded-2xl border border-ash-900 bg-bg-card p-8">
+            <BonfireVisual logs={monthlyLogs} />
+          </div>
+
+          <div className="rounded-2xl border border-ash-900 bg-bg-card p-4">
+            <div className="grid grid-cols-3 divide-x divide-ash-900">
+              <div className="flex flex-col items-center gap-1 px-2 text-center">
+                <Flame className="h-4 w-4 text-ember-400" />
+                <div className="font-display text-lg font-bold text-ash-100">{streak}</div>
+                <div className="text-xs text-ash-500">day streak</div>
+              </div>
+              <div className="flex flex-col items-center gap-1 px-2 text-center">
+                <Award className="h-4 w-4 text-ember-400" />
+                <div className="font-display text-lg font-bold text-ash-100">{selfRow ? `#${selfRow.rank}` : "—"}</div>
+                <div className="text-xs text-ash-500">rank</div>
+              </div>
+              <div className="flex flex-col items-center gap-1 px-2 text-center">
+                <Trophy className="h-4 w-4 text-ember-400" />
+                <div className="font-display text-lg font-bold text-ash-100">{allTimeLogs}</div>
+                <div className="text-xs text-ash-500">all-time logs</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <StatCard icon={Flame} label="Current streak" value={streak} hint={streak === 1 ? "day" : "days"} />
-          <StatCard
-            icon={Award}
-            label="Your rank"
-            value={selfRow ? `#${selfRow.rank}` : "—"}
-            hint={selfRow ? `of ${leaderboardRows.length} this month` : undefined}
-          />
-          <StatCard icon={Trophy} label="All-time logs" value={allTimeLogs} />
+        <div className="space-y-6">
+          {selfRow && <NearbyRank rows={leaderboardRows} selfId={userId} />}
+          {selfRow && (
+            <FriendsWidget
+              me={{ id: userId, name: session!.name, monthlyLogs: selfRow.monthlyLogs, allTimeLogs: selfRow.allTimeLogs, tier: selfRow.tier }}
+            />
+          )}
         </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <QuestionCard question={attach(dailyQ)} />
         <QuestionCard question={attach(weeklyQ)} />
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        {selfRow && <NearbyRank rows={leaderboardRows} selfId={userId} />}
-        {selfRow && (
-          <FriendsWidget
-            me={{ id: userId, name: session!.name, monthlyLogs: selfRow.monthlyLogs, allTimeLogs: selfRow.allTimeLogs, tier: selfRow.tier }}
-          />
-        )}
       </div>
     </div>
   );
