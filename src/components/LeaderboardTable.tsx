@@ -85,7 +85,9 @@ export default function LeaderboardTable({
             return (
               <tr
                 key={r.id}
-                className={`border-t border-ash-900 transition-colors ${isSelf ? "bg-navy-500/25" : "hover:bg-bg-panel/60"}`}
+                className={`border-t border-ash-900 transition-colors ${
+                  isSelf ? "bg-gradient-to-r from-navy-300/20 to-navy-300/5" : "hover:bg-bg-panel/60"
+                }`}
               >
                 <td className="px-5 py-3">
                   <span className={`flex items-center gap-1 font-semibold ${medalColor[r.rank] ?? "text-ash-300"}`}>
@@ -101,9 +103,9 @@ export default function LeaderboardTable({
                   </span>
                 </td>
                 <td className="px-5 py-3 text-gold-300">{r.tier}</td>
-                <td className="px-5 py-3 text-right font-semibold text-ash-100">
+                <td className="px-5 py-3 text-right font-semibold text-ember-400">
                   <span className="inline-flex items-center gap-1">
-                    <Flame className="h-3.5 w-3.5 text-ember-400" />
+                    <Flame className="h-3.5 w-3.5" />
                     {r.monthlyLogs}
                   </span>
                 </td>

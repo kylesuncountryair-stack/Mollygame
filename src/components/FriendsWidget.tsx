@@ -72,22 +72,24 @@ export default function FriendsWidget({
           {combined.map((row, i) => (
             <div
               key={row.id}
-              className={`flex items-center justify-between rounded-xl border px-4 py-2.5 transition-colors ${
-                row.isMe ? "border-navy-400 bg-navy-500/25" : "border-ash-700 bg-bg-panel hover:border-ash-600"
+              className={`flex items-center justify-between rounded-xl border px-4 py-2.5 transition-all ${
+                row.isMe
+                  ? "scale-[1.02] border-navy-300 bg-gradient-to-r from-navy-300/20 to-navy-300/5 shadow-[0_4px_14px_rgba(74,158,255,0.15)]"
+                  : "border-ash-700 bg-bg-panel hover:border-ash-600"
               }`}
             >
               <div className="flex items-center gap-3">
                 <span className="w-5 text-sm font-semibold text-ash-500">#{i + 1}</span>
                 <Avatar id={row.id} name={row.name} />
-                <span className="text-sm font-medium text-ash-100">
+                <span className={`text-sm ${row.isMe ? "font-semibold text-white" : "font-medium text-ash-100"}`}>
                   {row.name}
-                  {row.isMe && <span className="text-ash-500"> (you)</span>}
+                  {row.isMe && <span className="font-normal text-ash-300"> (you)</span>}
                 </span>
                 {row.role === "ADMIN" && <Badge tone="neutral">Admin</Badge>}
               </div>
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1 text-sm font-semibold text-ash-100">
-                  <Flame className="h-3.5 w-3.5 text-ember-400" />
+                <span className="flex items-center gap-1 text-sm font-semibold text-ember-400">
+                  <Flame className="h-3.5 w-3.5" />
                   {row.monthlyLogs}
                 </span>
                 {!row.isMe && (
