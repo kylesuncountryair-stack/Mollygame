@@ -30,18 +30,21 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   // and finds a question that was already answered earlier.
   const [justAnswered, setJustAnswered] = useState(false);
   const [tierUp, setTierUp] = useState<TierUp>(null);
-  // The correct/incorrect banner fades out on its own after a while instead
-  // of sitting there permanently — otherwise every single time you revisit
-  // an already-answered question, you'd see the same "Correct!" message
-  // parked under the options forever.
-  const [bannerVisible, setBannerVisible] = useState(true);
+  // The correct/incorrect banner only shows right after a fresh submission
+  // in this session, and fades out on its own after 30 seconds. It starts
+  // hidden (not visible) on mount — including when the server tells us this
+  // question was already answered earlier — so it doesn't pop back up every
+  // time the page is refreshed, you log back in, or you revisit the
+  // dashboard tab. Once it's gone, it stays gone; the checkmark/x on the
+  // selected option is enough of a reminder after that.
+  const [bannerVisible, setBannerVisible] = useState(false);
 
   useEffect(() => {
-    if (!result) return;
+    if (!justAnswered || !result) return;
     setBannerVisible(true);
     const timer = setTimeout(() => setBannerVisible(false), 30000);
     return () => clearTimeout(timer);
-  }, [result]);
+  }, [justAnswered, result]);
 
   if (!question) {
     return (
