@@ -43,7 +43,7 @@ export default function ChangePasswordForm() {
   }
 
   return (
-    <div className="rounded-2xl border border-ash-900 bg-bg-card p-6">
+    <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
       <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-ash-100">
         <KeyRound className="h-5 w-5 text-ember-400" /> Change Password
       </h2>

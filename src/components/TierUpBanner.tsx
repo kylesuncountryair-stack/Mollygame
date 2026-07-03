@@ -29,7 +29,7 @@ export default function TierUpBanner({ tier, onClose }: { tier: { label: string 
 
         <div className="mb-1 text-xs font-medium uppercase tracking-wide text-gold-300">Tier up</div>
 
-        <svg viewBox="0 0 200 140" className="mx-auto h-28 w-28">
+        <svg viewBox="0 0 200 140" className="mx-auto h-28 w-28 drop-shadow-flame">
           <defs>
             <radialGradient id="flameCoreTierUp" cx="50%" cy="70%" r="60%">
               <stop offset="0%" stopColor="#fff3e0" />

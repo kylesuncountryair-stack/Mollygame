@@ -138,19 +138,21 @@ export default function BonfireVisual({ logs, size = "lg" }: { logs: number; siz
 
           <Logs cx={cx} groundY={groundY} count={tier.logCount} />
 
-          {tier.sideFlames.map((sf: SideFlame, i: number) => (
-            <FlameGlyph
-              key={i}
-              cx={cx + sf.dx}
-              groundY={groundY}
-              scale={sf.scale}
-              rotate={sf.rotate}
-              opacity={sf.opacity}
-              gradientId="flameCoreMain"
-            />
-          ))}
+          <g className="drop-shadow-flame">
+            {tier.sideFlames.map((sf: SideFlame, i: number) => (
+              <FlameGlyph
+                key={i}
+                cx={cx + sf.dx}
+                groundY={groundY}
+                scale={sf.scale}
+                rotate={sf.rotate}
+                opacity={sf.opacity}
+                gradientId="flameCoreMain"
+              />
+            ))}
 
-          <FlameGlyph cx={cx} groundY={groundY} scale={tier.flameScale} gradientId="flameCoreMain" />
+            <FlameGlyph cx={cx} groundY={groundY} scale={tier.flameScale} gradientId="flameCoreMain" />
+          </g>
         </svg>
       </div>
 

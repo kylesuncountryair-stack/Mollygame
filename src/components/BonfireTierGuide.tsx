@@ -11,7 +11,7 @@ export default function BonfireTierGuide() {
   const width = COL_WIDTH * BONFIRE_TIERS.length;
 
   return (
-    <div className="rounded-2xl border border-ash-900 bg-bg-card p-6">
+    <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
       <h2 className="mb-1 font-display text-lg font-semibold text-ash-100">Every Phase of the Bonfire</h2>
       <p className="mb-4 text-sm text-ash-500">Your fire grows as you earn logs this month. Here's what's ahead.</p>
 
@@ -49,26 +49,28 @@ export default function BonfireTierGuide() {
 
                 <Logs cx={cx} groundY={GROUND_Y} count={tier.logCount} />
 
-                {tier.sideFlames.map((sf, si) => (
+                <g className="drop-shadow-flame">
+                  {tier.sideFlames.map((sf, si) => (
+                    <FlameGlyph
+                      key={si}
+                      cx={cx + sf.dx}
+                      groundY={GROUND_Y}
+                      scale={sf.scale}
+                      rotate={sf.rotate}
+                      opacity={sf.opacity}
+                      gradientId="flameCoreGuide"
+                      animated={false}
+                    />
+                  ))}
+
                   <FlameGlyph
-                    key={si}
-                    cx={cx + sf.dx}
+                    cx={cx}
                     groundY={GROUND_Y}
-                    scale={sf.scale}
-                    rotate={sf.rotate}
-                    opacity={sf.opacity}
+                    scale={tier.flameScale}
                     gradientId="flameCoreGuide"
                     animated={false}
                   />
-                ))}
-
-                <FlameGlyph
-                  cx={cx}
-                  groundY={GROUND_Y}
-                  scale={tier.flameScale}
-                  gradientId="flameCoreGuide"
-                  animated={false}
-                />
+                </g>
 
                 <text
                   x={cx}

@@ -12,7 +12,7 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
   const nearby = rows.slice(start, end);
 
   return (
-    <div className="rounded-2xl border border-ash-900 bg-bg-card p-6">
+    <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
       <h2 className="mb-1 font-display text-lg font-semibold text-ash-100">Your Rank</h2>
       <p className="mb-4 text-sm text-ash-500">
         #{rows[selfIndex].rank} of {rows.length} this month
@@ -21,8 +21,8 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
         {nearby.map((row) => (
           <div
             key={row.id}
-            className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm ${
-              row.id === selfId ? "border border-navy-400 bg-navy-500/25" : ""
+            className={`flex items-center justify-between rounded-lg border border-transparent px-3 py-2 text-sm transition-colors ${
+              row.id === selfId ? "border-navy-400 bg-navy-500/25" : "hover:border-ash-700 hover:bg-bg-panel"
             }`}
           >
             <div className="flex items-center gap-2">

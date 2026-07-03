@@ -38,7 +38,10 @@ export default function QuestionsList({ questions }: { questions: AdminQuestion[
   return (
     <div className="space-y-3">
       {questions.map((q) => (
-        <div key={q.id} className="flex items-start justify-between gap-4 rounded-2xl border border-ash-900 bg-bg-card p-5">
+        <div
+          key={q.id}
+          className="flex items-start justify-between gap-4 rounded-2xl border border-ash-900 bg-bg-card p-5 shadow-card transition-shadow hover:shadow-card-hover"
+        >
           <div className="flex-1">
             <div className="mb-2 flex items-center gap-2">
               <Badge tone={q.type === "WEEKLY" ? "ember" : "neutral"}>{q.type}</Badge>

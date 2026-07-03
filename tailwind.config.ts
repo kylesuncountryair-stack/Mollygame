@@ -67,6 +67,14 @@ const config: Config = {
       boxShadow: {
         glow: "0 0 40px rgba(245, 130, 50, 0.4)",
         "glow-lg": "0 0 90px rgba(245, 130, 50, 0.5)",
+        // Neutral depth shadow for ordinary cards — distinct from the
+        // colored "glow" shadows, which stay reserved for the bonfire
+        // itself and celebratory moments so they don't become wallpaper.
+        card: "0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.25)",
+        "card-hover": "0 12px 32px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3)",
+      },
+      dropShadow: {
+        flame: "0 0 14px rgba(245, 130, 50, 0.5)",
       },
       keyframes: {
         flicker: {
@@ -100,12 +108,17 @@ const config: Config = {
           "60%": { transform: "scale(1.03)", opacity: "1" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
+        twinkle: {
+          "0%, 100%": { opacity: "0.1", transform: "translateY(0)" },
+          "50%": { opacity: "0.55", transform: "translateY(-14px)" },
+        },
       },
       animation: {
         flicker: "flicker 2.4s ease-in-out infinite",
         ember: "ember 3s ease-in infinite",
         pulseGlow: "pulseGlow 2.5s ease-in-out infinite",
         rise: "rise 0.4s ease-out",
+        twinkle: "twinkle 7s ease-in-out infinite",
         "confetti-burst": "confettiBurst 0.9s ease-out forwards",
         "pop-in": "popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards",
       },

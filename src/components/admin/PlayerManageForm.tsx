@@ -107,7 +107,7 @@ export default function PlayerManageForm({
   }
 
   return (
-    <div className="rounded-2xl border border-ash-900 bg-bg-card p-6">
+    <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
       <h3 className="mb-4 font-display text-lg font-semibold text-ash-100">Manage Player</h3>
 
       <form onSubmit={saveName} className="flex items-end gap-2">

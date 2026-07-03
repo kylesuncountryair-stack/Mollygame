@@ -66,7 +66,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   }
 
   return (
-    <div className="animate-rise rounded-2xl border border-ash-900 bg-bg-card p-6">
+    <div className="animate-rise rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
       <div className="mb-4 flex items-center justify-between">
         <Badge tone={isWeekly ? "gold" : "ember"}>
           {isWeekly ? <CalendarRange className="h-3 w-3" /> : <CalendarDays className="h-3 w-3" />}

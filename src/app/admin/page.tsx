@@ -17,10 +17,10 @@ export default async function AdminOverviewPage() {
         <p className="text-ash-500">A snapshot of your Bonfire game.</p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Users} label="Players" value={playerCount} />
-        <StatCard icon={HelpCircle} label="Questions" value={questionCount} />
-        <StatCard icon={ListChecks} label="Answers submitted" value={answerCount} />
-        <StatCard icon={Flame} label="Total logs issued" value={logSum._sum.amount ?? 0} />
+        <StatCard icon={Users} label="Players" tone="navy" value={playerCount} />
+        <StatCard icon={HelpCircle} label="Questions" tone="gold" value={questionCount} />
+        <StatCard icon={ListChecks} label="Answers submitted" tone="navy" value={answerCount} />
+        <StatCard icon={Flame} label="Total logs issued" tone="ember" value={logSum._sum.amount ?? 0} />
       </div>
     </div>
   );

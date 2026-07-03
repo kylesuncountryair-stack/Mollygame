@@ -34,13 +34,13 @@ export default async function ProfilePage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-[auto,1fr]">
-        <div className="flex items-center justify-center rounded-2xl border border-ash-900 bg-bg-card p-8">
+        <div className="flex items-center justify-center rounded-2xl border border-ash-900 bg-bg-card shadow-card p-8">
           <BonfireVisual logs={monthlyLogs} size="sm" />
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <StatCard icon={ListChecks} label="Answered" value={answers.length} />
-          <StatCard icon={CheckCircle2} label="Correct" value={correct} />
-          <StatCard icon={XCircle} label="Wrong" value={wrong} />
+          <StatCard icon={ListChecks} label="Answered" tone="navy" value={answers.length} />
+          <StatCard icon={CheckCircle2} label="Correct" tone="success" value={correct} />
+          <StatCard icon={XCircle} label="Wrong" tone="danger" value={wrong} />
         </div>
       </div>
 
@@ -51,7 +51,7 @@ export default async function ProfilePage() {
             You haven&apos;t answered any questions yet.
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-ash-900 bg-bg-card">
+          <div className="overflow-hidden rounded-2xl border border-ash-900 bg-bg-card shadow-card">
             <table className="w-full text-left text-sm">
               <thead className="bg-bg-panel text-ash-500">
                 <tr>

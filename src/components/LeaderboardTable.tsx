@@ -67,7 +67,7 @@ export default function LeaderboardTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-ash-900 bg-bg-card">
+    <div className="overflow-x-auto rounded-2xl border border-ash-900 bg-bg-card shadow-card">
       <table className="w-full text-left text-sm">
         <thead className="bg-bg-panel text-ash-500">
           <tr>
@@ -83,7 +83,10 @@ export default function LeaderboardTable({
           {rows.map((r) => {
             const isSelf = r.id === highlightId;
             return (
-              <tr key={r.id} className={`border-t border-ash-900 ${isSelf ? "bg-navy-500/25" : ""}`}>
+              <tr
+                key={r.id}
+                className={`border-t border-ash-900 transition-colors ${isSelf ? "bg-navy-500/25" : "hover:bg-bg-panel/60"}`}
+              >
                 <td className="px-5 py-3">
                   <span className={`flex items-center gap-1 font-semibold ${medalColor[r.rank] ?? "text-ash-300"}`}>
                     {r.rank <= 3 ? <Medal className="h-4 w-4" /> : null}#{r.rank}

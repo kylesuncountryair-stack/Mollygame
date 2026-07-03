@@ -45,10 +45,10 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={ListChecks} label="Answered" value={answers.length} />
-        <StatCard icon={CheckCircle2} label="Correct" value={correct} />
-        <StatCard icon={XCircle} label="Wrong" value={wrong} />
-        <StatCard icon={Flame} label="Total logs" value={allTimeLogs} hint={`${monthlyLogs} this month`} />
+        <StatCard icon={ListChecks} label="Answered" tone="navy" value={answers.length} />
+        <StatCard icon={CheckCircle2} label="Correct" tone="success" value={correct} />
+        <StatCard icon={XCircle} label="Wrong" tone="danger" value={wrong} />
+        <StatCard icon={Flame} label="Total logs" tone="ember" value={allTimeLogs} hint={`${monthlyLogs} this month`} />
       </div>
 
       <PlayerManageForm playerId={player.id} initialName={player.name} role={player.role} />
@@ -60,7 +60,7 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
         {answers.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-ash-700 p-6 text-center text-ash-500">No answers yet.</div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-ash-900 bg-bg-card">
+          <div className="overflow-hidden rounded-2xl border border-ash-900 bg-bg-card shadow-card">
             <table className="w-full text-left text-sm">
               <thead className="bg-bg-panel text-ash-500">
                 <tr>
@@ -94,7 +94,7 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
         {transactions.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-ash-700 p-6 text-center text-ash-500">No log transactions yet.</div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-ash-900 bg-bg-card">
+          <div className="overflow-hidden rounded-2xl border border-ash-900 bg-bg-card shadow-card">
             <table className="w-full text-left text-sm">
               <thead className="bg-bg-panel text-ash-500">
                 <tr>

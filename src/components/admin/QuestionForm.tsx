@@ -88,7 +88,7 @@ export default function QuestionForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-2xl border border-ash-900 bg-bg-card p-6">
+    <form onSubmit={submit} className="space-y-4 rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="mb-1 block text-xs font-medium text-ash-400">Type</label>

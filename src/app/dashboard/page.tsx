@@ -66,24 +66,30 @@ export default async function DashboardPage() {
 
       <div className="grid gap-6 xl:grid-cols-[320px,1fr,1fr]">
         <div className="space-y-4">
-          <div className="flex items-center justify-center rounded-2xl border border-ash-900 bg-bg-card p-8">
+          <div className="flex items-center justify-center rounded-2xl border border-ash-900 bg-bg-card shadow-card p-8">
             <BonfireVisual logs={monthlyLogs} />
           </div>
 
           <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-lg border border-ash-700 border-l-[3px] border-l-ember-500 bg-bg-card px-2 py-3 text-center">
-              <Flame className="mx-auto h-4 w-4 text-ember-400" />
-              <div className="font-display text-lg font-semibold text-white">{streak}</div>
+            <div className="rounded-lg border border-ash-700 bg-bg-card px-2 py-3 text-center shadow-card">
+              <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-ember-500/15">
+                <Flame className="h-3.5 w-3.5 text-ember-400" />
+              </span>
+              <div className="mt-1.5 font-display text-lg font-semibold text-white">{streak}</div>
               <div className="text-xs text-ash-500">day streak</div>
             </div>
-            <div className="rounded-lg border border-ash-700 border-l-[3px] border-l-gold-400 bg-bg-card px-2 py-3 text-center">
-              <Award className="mx-auto h-4 w-4 text-gold-400" />
-              <div className="font-display text-lg font-semibold text-white">{selfRow ? `#${selfRow.rank}` : "—"}</div>
+            <div className="rounded-lg border border-ash-700 bg-bg-card px-2 py-3 text-center shadow-card">
+              <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-gold-500/15">
+                <Award className="h-3.5 w-3.5 text-gold-400" />
+              </span>
+              <div className="mt-1.5 font-display text-lg font-semibold text-white">{selfRow ? `#${selfRow.rank}` : "—"}</div>
               <div className="text-xs text-ash-500">rank</div>
             </div>
-            <div className="rounded-lg border border-ash-700 border-l-[3px] border-l-navy-300 bg-bg-card px-2 py-3 text-center">
-              <Trophy className="mx-auto h-4 w-4 text-navy-300" />
-              <div className="font-display text-lg font-semibold text-white">{allTimeLogs}</div>
+            <div className="rounded-lg border border-ash-700 bg-bg-card px-2 py-3 text-center shadow-card">
+              <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-navy-300/15">
+                <Trophy className="h-3.5 w-3.5 text-navy-300" />
+              </span>
+              <div className="mt-1.5 font-display text-lg font-semibold text-white">{allTimeLogs}</div>
               <div className="text-xs text-ash-500">all-time logs</div>
             </div>
           </div>

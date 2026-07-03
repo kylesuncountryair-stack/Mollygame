@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import AmbientSparks from "@/components/AmbientSparks";
 import "./globals.css";
 
 // One professional sans-serif for everything — headings are differentiated
@@ -22,7 +23,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable}`} style={{ "--font-display": "var(--font-body)" } as React.CSSProperties}>
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-body antialiased">
+        <AmbientSparks />
+        {children}
+      </body>
     </html>
   );
 }

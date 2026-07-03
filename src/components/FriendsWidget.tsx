@@ -51,7 +51,7 @@ export default function FriendsWidget({
   );
 
   return (
-    <div className="rounded-2xl border border-ash-900 bg-bg-card p-6">
+    <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
       <div className="mb-1 flex items-center gap-2">
         <Users className="h-5 w-5 text-ember-400" />
         <h2 className="font-display text-lg font-semibold text-ash-100">Your Circle</h2>
@@ -72,8 +72,8 @@ export default function FriendsWidget({
           {combined.map((row, i) => (
             <div
               key={row.id}
-              className={`flex items-center justify-between rounded-xl border px-4 py-2.5 ${
-                row.isMe ? "border-navy-400 bg-navy-500/25" : "border-ash-700 bg-bg-panel"
+              className={`flex items-center justify-between rounded-xl border px-4 py-2.5 transition-colors ${
+                row.isMe ? "border-navy-400 bg-navy-500/25" : "border-ash-700 bg-bg-panel hover:border-ash-600"
               }`}
             >
               <div className="flex items-center gap-3">
