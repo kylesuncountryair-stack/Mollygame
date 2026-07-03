@@ -11,6 +11,14 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 export const metadata: Metadata = {
   title: "Sun Country Q3 Bonfire Challenge",
   description: "Answer questions, earn logs, build the biggest bonfire.",
+  // Declared explicitly (not just relying on the src/app/icon.svg naming
+  // convention) so the <link rel="icon"> tag is guaranteed to be present.
+  // If it's still not showing after this, it's almost certainly the
+  // browser's own favicon cache, which is notoriously sticky — try an
+  // incognito window or a different browser to confirm.
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
