@@ -14,6 +14,8 @@ export type LeaderboardRow = {
   monthlyLogs: number;
   allTimeLogs: number;
   tier: string;
+  avatarColor?: string | null;
+  avatarIcon?: string | null;
 };
 
 const medalColor: Record<number, string> = {
@@ -125,7 +127,7 @@ export default function LeaderboardTable({
                 </td>
                 <td className="px-5 py-3 text-white">
                   <span className="flex items-center gap-2.5">
-                    <Avatar id={r.id} name={r.name} />
+                    <Avatar id={r.id} name={r.name} avatarColor={r.avatarColor} avatarIcon={r.avatarIcon} />
                     {r.name}
                     {isSelf && <span className="text-xs text-ash-500">(you)</span>}
                     {r.role === "ADMIN" && <Badge tone="neutral">Admin</Badge>}

@@ -7,6 +7,7 @@ import Avatar from "@/components/Avatar";
 import StatCard from "@/components/StatCard";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
 import EditNameForm from "@/components/EditNameForm";
+import AvatarPicker from "@/components/AvatarPicker";
 import SectionHeader from "@/components/SectionHeader";
 import { CheckCircle2, ListChecks, XCircle } from "lucide-react";
 
@@ -14,10 +15,11 @@ export default async function ProfilePage() {
   const session = await getCurrentSession();
   const userId = session!.sub;
 
-  const [answers, monthlySum, allTimeSum] = await Promise.all([
+  const [answers, monthlySum, allTimeSum, me] = await Promise.all([
     prisma.answer.findMany({ where: { userId }, include: { question: true }, orderBy: { answeredAt: "desc" } }),
     prisma.logTransaction.aggregate({ where: { userId, createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
     prisma.logTransaction.aggregate({ where: { userId }, _sum: { amount: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { avatarColor: true, avatarIcon: true } }),
   ]);
 
   const correct = answers.filter((a) => a.isCorrect).length;
@@ -28,12 +30,15 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-3">
-        <Avatar id={session!.sub} name={session!.name} size="md" />
+        <Avatar id={session!.sub} name={session!.name} size="md" avatarColor={me?.avatarColor} avatarIcon={me?.avatarIcon} />
         <div>
           <h1 className="font-display text-2xl font-bold text-ash-100">{session!.name}</h1>
           <p className="text-ash-500">{session!.email}</p>
-          <div className="mt-1">
+          <div className="mt-1 flex items-center gap-3">
             <EditNameForm initialName={session!.name} />
+          </div>
+          <div className="mt-1">
+            <AvatarPicker userId={session!.sub} name={session!.name} initialColor={me?.avatarColor} initialIcon={me?.avatarIcon} />
           </div>
         </div>
       </div>

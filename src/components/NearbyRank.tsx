@@ -33,7 +33,7 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
           >
             <div className="flex items-center gap-2">
               <span className="w-6 font-semibold text-ash-500">#{row.rank}</span>
-              <Avatar id={row.id} name={row.name} />
+              <Avatar id={row.id} name={row.name} avatarColor={row.avatarColor} avatarIcon={row.avatarIcon} />
               <span className={row.id === selfId ? "font-medium text-white" : "text-ash-100"}>
                 {row.name}
                 {row.id === selfId && <span className="text-ash-300"> (you)</span>}

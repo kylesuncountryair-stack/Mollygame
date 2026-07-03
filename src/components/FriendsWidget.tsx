@@ -16,12 +16,22 @@ type FriendRow = {
   monthlyLogs: number;
   allTimeLogs: number;
   tier: string;
+  avatarColor?: string | null;
+  avatarIcon?: string | null;
 };
 
 export default function FriendsWidget({
   me,
 }: {
-  me: { id: string; name: string; monthlyLogs: number; allTimeLogs: number; tier: string };
+  me: {
+    id: string;
+    name: string;
+    monthlyLogs: number;
+    allTimeLogs: number;
+    tier: string;
+    avatarColor?: string | null;
+    avatarIcon?: string | null;
+  };
 }) {
   const router = useRouter();
   const [friends, setFriends] = useState<FriendRow[] | null>(null);
@@ -86,7 +96,7 @@ export default function FriendsWidget({
             >
               <div className="flex items-center gap-3">
                 <span className="w-5 text-sm font-semibold text-ash-500">#{i + 1}</span>
-                <Avatar id={row.id} name={row.name} />
+                <Avatar id={row.id} name={row.name} avatarColor={row.avatarColor} avatarIcon={row.avatarIcon} />
                 <span className={`text-sm ${row.isMe ? "font-semibold text-white" : "font-medium text-ash-100"}`}>
                   {row.name}
                   {row.isMe && <span className="font-normal text-ash-300"> (you)</span>}

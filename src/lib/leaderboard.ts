@@ -9,13 +9,17 @@ export type LeaderboardRow = {
   allTimeLogs: number;
   tier: string;
   rank: number;
+  avatarColor: string | null;
+  avatarIcon: string | null;
 };
 
 // Shared by the Leaderboard page, the /api/leaderboard route, and the
 // dashboard's "Your Rank" + friends widgets, so the ranking logic (and any
 // future tie-break rules) only lives in one place.
 export async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
-  const users = await prisma.user.findMany({ select: { id: true, name: true, role: true } });
+  const users = await prisma.user.findMany({
+    select: { id: true, name: true, role: true, avatarColor: true, avatarIcon: true },
+  });
 
   const [monthlySums, allTimeSums] = await Promise.all([
     prisma.logTransaction.groupBy({ by: ["userId"], where: { createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
@@ -37,6 +41,8 @@ export async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
         allTimeLogs,
         tier: getTierForLogs(monthlyLogs).label,
         rank: 0,
+        avatarColor: u.avatarColor,
+        avatarIcon: u.avatarIcon,
       };
     })
     .sort((a, b) => b.monthlyLogs - a.monthlyLogs || b.allTimeLogs - a.allTimeLogs);

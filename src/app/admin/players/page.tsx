@@ -10,12 +10,12 @@ export default async function AdminPlayersPage() {
   const [players, admins] = await Promise.all([
     prisma.user.findMany({
       where: { role: "PLAYER" },
-      select: { id: true, name: true, email: true, createdAt: true },
+      select: { id: true, name: true, email: true, createdAt: true, avatarColor: true, avatarIcon: true },
       orderBy: { createdAt: "asc" },
     }),
     prisma.user.findMany({
       where: { role: "ADMIN" },
-      select: { id: true, name: true, email: true, createdAt: true },
+      select: { id: true, name: true, email: true, createdAt: true, avatarColor: true, avatarIcon: true },
       orderBy: { createdAt: "asc" },
     }),
   ]);
@@ -76,7 +76,7 @@ export default async function AdminPlayersPage() {
                   <tr key={a.id} className="border-t border-ash-900 hover:bg-ash-900/40">
                     <td className="px-5 py-3">
                       <Link href={`/admin/players/${a.id}`} className="flex items-center gap-2.5 font-medium text-ember-300 hover:underline">
-                        <Avatar id={a.id} name={a.name} />
+                        <Avatar id={a.id} name={a.name} avatarColor={a.avatarColor} avatarIcon={a.avatarIcon} />
                         {a.name}
                       </Link>
                     </td>

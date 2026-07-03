@@ -99,7 +99,15 @@ export default async function DashboardPage() {
           {selfRow && <NearbyRank rows={leaderboardRows} selfId={userId} />}
           {selfRow && (
             <FriendsWidget
-              me={{ id: userId, name: session!.name, monthlyLogs: selfRow.monthlyLogs, allTimeLogs: selfRow.allTimeLogs, tier: selfRow.tier }}
+              me={{
+                id: userId,
+                name: session!.name,
+                monthlyLogs: selfRow.monthlyLogs,
+                allTimeLogs: selfRow.allTimeLogs,
+                tier: selfRow.tier,
+                avatarColor: selfRow.avatarColor,
+                avatarIcon: selfRow.avatarIcon,
+              }}
             />
           )}
         </div>

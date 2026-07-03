@@ -31,6 +31,12 @@ model User {
   passwordSalt String
   role         Role     @default(PLAYER)
   createdAt    DateTime @default(now())
+  // Self-service avatar customization (Profile page). avatarColor is a key
+  // into the palette in src/components/Avatar.tsx; avatarIcon is either
+  // "initials" (default), "letter", or one of the 10 icon keys. Both are
+  // nullable so existing accounts fall back to the old deterministic look.
+  avatarColor  String?
+  avatarIcon   String?
 
   answers             Answer[]
   logTransactions     LogTransaction[] @relation("PlayerTransactions")

@@ -15,6 +15,8 @@ export type AdminPlayerRow = {
   tier: string;
   monthlyLogs: number;
   allTimeLogs: number;
+  avatarColor?: string | null;
+  avatarIcon?: string | null;
 };
 
 type SortKey = "name" | "answered" | "correct" | "wrong" | "monthlyLogs" | "allTimeLogs";
@@ -108,7 +110,7 @@ export default function AdminPlayersTable({ rows }: { rows: AdminPlayerRow[] }) 
                 <tr key={r.id} className="border-t border-ash-900 hover:bg-ash-900/40">
                   <td className="px-5 py-3">
                     <Link href={`/admin/players/${r.id}`} className="flex items-center gap-2.5 font-medium text-ember-300 hover:underline">
-                      <Avatar id={r.id} name={r.name} />
+                      <Avatar id={r.id} name={r.name} avatarColor={r.avatarColor} avatarIcon={r.avatarIcon} />
                       {r.name}
                     </Link>
                   </td>

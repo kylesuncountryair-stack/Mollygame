@@ -13,7 +13,7 @@ import { ArrowLeft, CheckCircle2, Flame, ListChecks, Receipt, XCircle } from "lu
 export default async function AdminPlayerDetailPage({ params }: { params: { id: string } }) {
   const player = await prisma.user.findUnique({
     where: { id: params.id },
-    select: { id: true, name: true, email: true, createdAt: true, role: true },
+    select: { id: true, name: true, email: true, createdAt: true, role: true, avatarColor: true, avatarIcon: true },
   });
   if (!player) notFound();
 
@@ -39,7 +39,7 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Players
       </Link>
       <div className="flex items-center gap-3">
-        <Avatar id={player.id} name={player.name} size="md" />
+        <Avatar id={player.id} name={player.name} size="md" avatarColor={player.avatarColor} avatarIcon={player.avatarIcon} />
         <div>
           <h1 className="font-display text-2xl font-bold text-ash-100">{player.name}</h1>
           <p className="text-ash-500">
