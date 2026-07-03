@@ -64,7 +64,7 @@ export default async function DashboardPage() {
         <p className="text-ash-500">{monthLabel()} bonfire</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-[auto,1fr]">
+      <div className="grid gap-6 xl:grid-cols-[320px,1fr,1fr]">
         <div className="space-y-4">
           <div className="flex items-center justify-center rounded-2xl border border-ash-900 bg-bg-card p-8">
             <BonfireVisual logs={monthlyLogs} />
@@ -99,11 +99,11 @@ export default async function DashboardPage() {
             />
           )}
         </div>
-      </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <QuestionCard question={attach(dailyQ)} />
-        <QuestionCard question={attach(weeklyQ)} />
+        <div className="space-y-6">
+          <QuestionCard question={attach(dailyQ)} />
+          <QuestionCard question={attach(weeklyQ)} />
+        </div>
       </div>
     </div>
   );

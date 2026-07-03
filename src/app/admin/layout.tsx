@@ -9,7 +9,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <>
       <Navbar name={session.name} role={session.role} />
-      <div className="mx-auto flex max-w-6xl gap-8 px-6 py-8">
+      <div className="mx-auto flex max-w-[1600px] gap-8 px-6 py-8">
         <aside className="w-48 shrink-0 space-y-1">
           <Link href="/admin" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ash-300 hover:bg-ash-900 hover:text-ash-100">
             <LayoutGrid className="h-4 w-4" /> Overview

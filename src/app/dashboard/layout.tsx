@@ -6,7 +6,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <>
       <Navbar name={session.name} role={session.role} />
-      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-[1600px] px-6 py-8">{children}</main>
     </>
   );
 }
