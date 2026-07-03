@@ -11,14 +11,12 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
 export const metadata: Metadata = {
   title: "Sun Country Q3 Bonfire Challenge",
   description: "Answer questions, earn logs, build the biggest bonfire.",
-  // Declared explicitly (not just relying on the src/app/icon.svg naming
-  // convention) so the <link rel="icon"> tag is guaranteed to be present.
-  // If it's still not showing after this, it's almost certainly the
-  // browser's own favicon cache, which is notoriously sticky — try an
-  // incognito window or a different browser to confirm.
-  icons: {
-    icon: "/icon.svg",
-  },
+  // Deliberately NOT declaring `icons` here. Next.js gives an explicit
+  // metadata.icons entry priority over the src/app/icon.svg file-convention
+  // route — so having both means the convention-based route stops being
+  // served, and the explicit <link> ends up pointing at a URL that 404s.
+  // (That's exactly what broke the favicon last time.) Pick one mechanism;
+  // the file convention alone is sufficient and simpler.
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
