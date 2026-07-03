@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Flame, Trash2, UserPlus, Users } from "lucide-react";
 import Badge from "@/components/Badge";
 import Avatar from "@/components/Avatar";
+import Skeleton from "@/components/Skeleton";
 
 type FriendRow = {
   id: string;
@@ -58,7 +59,11 @@ export default function FriendsWidget({
       </div>
 
       {friends === null ? (
-        <p className="mt-3 text-sm text-ash-500">Loading...</p>
+        <div className="mt-3 space-y-2">
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-12 w-full rounded-xl" />
+          ))}
+        </div>
       ) : friends.length === 0 ? (
         <div className="mt-3 rounded-xl border border-dashed border-ash-700 p-4 text-sm text-ash-500">
           You haven&apos;t added anyone yet.{" "}

@@ -29,3 +29,24 @@ textarea:focus-visible,
   outline: 2px solid #f58232;
   outline-offset: 2px;
 }
+
+/* Tactile press feedback on every button, applied globally rather than
+   per-component so it's guaranteed consistent. Tailwind's own
+   `transition-colors`/`transition-all` utilities on individual buttons set
+   `transition-property` directly, which this (higher-specificity, element +
+   :not pseudo-class) rule intentionally supersedes — it re-includes color/
+   border/shadow alongside transform so nothing loses its existing hover
+   smoothness, it just also gains a satisfying press. Disabled buttons are
+   excluded so loading/disabled states don't visually "press". */
+button:not(:disabled) {
+  transition:
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+button:not(:disabled):active {
+  transform: scale(0.96);
+}
