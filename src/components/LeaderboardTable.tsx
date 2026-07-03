@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flame, Medal, Trophy, UserCheck, UserPlus } from "lucide-react";
+import { Flame, Medal, Search, Trophy, UserCheck, UserPlus } from "lucide-react";
 import Badge from "@/components/Badge";
 import Avatar from "@/components/Avatar";
 
@@ -34,6 +34,13 @@ export default function LeaderboardTable({
   const router = useRouter();
   const [following, setFollowing] = useState<Set<string>>(new Set(followingIds));
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const filteredRows = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((r) => r.name.toLowerCase().includes(q));
+  }, [rows, search]);
 
   async function toggleFollow(id: string) {
     setPendingId(id);
@@ -72,20 +79,37 @@ export default function LeaderboardTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-ash-900 bg-bg-card shadow-card">
-      <table className="w-full text-left text-sm">
-        <thead className="bg-bg-panel text-ash-500">
-          <tr>
-            <th className="px-5 py-3 font-medium">Rank</th>
-            <th className="px-5 py-3 font-medium">Player</th>
-            <th className="px-5 py-3 font-medium">Tier</th>
-            <th className="px-5 py-3 font-medium text-right">Logs this month</th>
-            <th className="px-5 py-3 font-medium text-right">All-time</th>
-            {highlightId && <th className="px-5 py-3 font-medium text-right">Circle</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => {
+    <div className="space-y-3">
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ash-500" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search players..."
+          className="w-full max-w-xs rounded-lg border border-ash-800 bg-bg-panel py-2 pl-9 pr-3 text-sm text-ash-100 outline-none focus:border-ember-500"
+        />
+      </div>
+
+      {filteredRows.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-ash-700 p-8 text-center text-ash-500">
+          <Search className="h-6 w-6 text-ash-600" />
+          <p>No players match &quot;{search}&quot;.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-ash-900 bg-bg-card shadow-card">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-bg-panel text-ash-500">
+              <tr>
+                <th className="px-5 py-3 font-medium">Rank</th>
+                <th className="px-5 py-3 font-medium">Player</th>
+                <th className="px-5 py-3 font-medium">Tier</th>
+                <th className="px-5 py-3 font-medium text-right">Logs this month</th>
+                <th className="px-5 py-3 font-medium text-right">All-time</th>
+                {highlightId && <th className="px-5 py-3 font-medium text-right">Circle</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRows.map((r) => {
             const isSelf = r.id === highlightId;
             return (
               <tr
@@ -142,9 +166,11 @@ export default function LeaderboardTable({
                 )}
               </tr>
             );
-          })}
-        </tbody>
-      </table>
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

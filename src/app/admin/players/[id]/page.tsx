@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
@@ -7,7 +8,7 @@ import StatCard from "@/components/StatCard";
 import IssueLogsForm from "@/components/admin/IssueLogsForm";
 import PlayerManageForm from "@/components/admin/PlayerManageForm";
 import SectionHeader from "@/components/SectionHeader";
-import { CheckCircle2, Flame, ListChecks, Receipt, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Flame, ListChecks, Receipt, XCircle } from "lucide-react";
 
 export default async function AdminPlayerDetailPage({ params }: { params: { id: string } }) {
   const player = await prisma.user.findUnique({
@@ -34,6 +35,9 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
 
   return (
     <div className="space-y-8">
+      <Link href="/admin/players" className="inline-flex items-center gap-1 text-sm text-ash-500 hover:text-ember-300">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back to Players
+      </Link>
       <div className="flex items-center gap-3">
         <Avatar id={player.id} name={player.name} size="md" />
         <div>

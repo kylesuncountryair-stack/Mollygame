@@ -6,6 +6,7 @@ import Badge from "@/components/Badge";
 import Avatar from "@/components/Avatar";
 import StatCard from "@/components/StatCard";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
+import EditNameForm from "@/components/EditNameForm";
 import SectionHeader from "@/components/SectionHeader";
 import { CheckCircle2, ListChecks, XCircle } from "lucide-react";
 
@@ -31,6 +32,9 @@ export default async function ProfilePage() {
         <div>
           <h1 className="font-display text-2xl font-bold text-ash-100">{session!.name}</h1>
           <p className="text-ash-500">{session!.email}</p>
+          <div className="mt-1">
+            <EditNameForm initialName={session!.name} />
+          </div>
         </div>
       </div>
 

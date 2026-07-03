@@ -1,10 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import QuestionForm from "@/components/admin/QuestionForm";
 import QuestionsList, { type AdminQuestion } from "@/components/admin/QuestionsList";
+import QuestionCalendar from "@/components/admin/QuestionCalendar";
+import BulkImportQuestions from "@/components/admin/BulkImportQuestions";
 import SectionHeader from "@/components/SectionHeader";
-import { HelpCircle } from "lucide-react";
+import { CalendarDays, HelpCircle, Upload } from "lucide-react";
 
-export default async function AdminQuestionsPage() {
+export default async function AdminQuestionsPage({
+  searchParams,
+}: {
+  searchParams: { date?: string };
+}) {
   const questions = await prisma.question.findMany({ orderBy: { activeDate: "desc" } });
 
   const rows: AdminQuestion[] = questions.map((q) => ({
@@ -24,7 +30,17 @@ export default async function AdminQuestionsPage() {
         <p className="text-ash-500">Create daily and weekly questions and set how many logs they're worth.</p>
       </div>
 
-      <QuestionForm />
+      <QuestionForm initialActiveDate={searchParams?.date} />
+
+      <div>
+        <SectionHeader icon={Upload} tone="navy" title="Bulk Import" className="mb-4" />
+        <BulkImportQuestions />
+      </div>
+
+      <div>
+        <SectionHeader icon={CalendarDays} tone="gold" title="Question Calendar" className="mb-4" />
+        <QuestionCalendar questions={rows} />
+      </div>
 
       <div>
         <SectionHeader icon={HelpCircle} tone="gold" title="All Questions" className="mb-4" />

@@ -25,9 +25,13 @@ function toDateInputValue(iso?: string) {
 export default function QuestionForm({
   initial,
   onDone,
+  initialActiveDate,
 }: {
   initial?: Partial<QuestionFormValue> & { id?: string };
   onDone?: () => void;
+  // Prefills the active-date field, e.g. when the admin clicked an empty day
+  // on the question calendar. Ignored when editing an existing question.
+  initialActiveDate?: string;
 }) {
   const router = useRouter();
   const [type, setType] = useState<"DAILY" | "WEEKLY">(initial?.type ?? "DAILY");
@@ -35,7 +39,9 @@ export default function QuestionForm({
   const [options, setOptions] = useState<string[]>(initial?.options?.length ? initial.options : ["", ""]);
   const [correctIndex, setCorrectIndex] = useState(initial?.correctIndex ?? 0);
   const [logsReward, setLogsReward] = useState(initial?.logsReward ?? 1);
-  const [activeDate, setActiveDate] = useState(toDateInputValue(initial?.activeDate));
+  const [activeDate, setActiveDate] = useState(
+    initial?.activeDate ? toDateInputValue(initial.activeDate) : initialActiveDate ?? toDateInputValue()
+  );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -88,7 +94,7 @@ export default function QuestionForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
+    <form id="question-form" onSubmit={submit} className="space-y-4 rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6 scroll-mt-6">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="mb-1 block text-xs font-medium text-ash-400">Type</label>
