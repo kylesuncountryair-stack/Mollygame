@@ -13,7 +13,12 @@ export const FLAME_ANCHOR_X = 52.5;
 export const FLAME_ANCHOR_Y = 100;
 
 export function flameTransform(cx: number, groundY: number, scale: number, rotate = 0) {
-  return `translate(${cx},${groundY}) translate(${FLAME_ANCHOR_X},${FLAME_ANCHOR_Y}) rotate(${rotate}) scale(${scale}) translate(${-FLAME_ANCHOR_X},${-FLAME_ANCHOR_Y})`;
+  // Reads right-to-left: shift the anchor point to the origin, scale/rotate
+  // around that now-fixed origin, then move the origin out to (cx, groundY).
+  // The anchor lands exactly on (cx, groundY) for any scale or rotation —
+  // no extra corrective translate needed (an earlier version had one, which
+  // added a constant (52.5, 100) offset to every flame regardless of tier).
+  return `translate(${cx},${groundY}) rotate(${rotate}) scale(${scale}) translate(${-FLAME_ANCHOR_X},${-FLAME_ANCHOR_Y})`;
 }
 
 export function FlameGlyph({

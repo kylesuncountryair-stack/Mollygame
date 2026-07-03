@@ -2,7 +2,6 @@ import { getCurrentSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { startOfMonthUTC, startOfTodayUTC, endOfTodayUTC, startOfWeekUTC, endOfWeekUTC, monthLabel } from "@/lib/bonfire";
 import BonfireVisual from "@/components/BonfireVisual";
-import BonfireTierGuide from "@/components/BonfireTierGuide";
 import QuestionCard from "@/components/QuestionCard";
 import StatCard from "@/components/StatCard";
 import { CheckCircle2, ListChecks, Trophy } from "lucide-react";
@@ -73,8 +72,6 @@ export default async function DashboardPage() {
         <QuestionCard question={attach(dailyQ)} />
         <QuestionCard question={attach(weeklyQ)} />
       </div>
-
-      <BonfireTierGuide />
     </div>
   );
 }
