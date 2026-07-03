@@ -1,4 +1,4 @@
-import { startOfTodayUTC } from "@/lib/bonfire";
+import { startOfTodayCT } from "@/lib/bonfire";
 
 function dateKey(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -18,7 +18,7 @@ function addDaysUTC(d: Date, days: number): Date {
 export function computeStreak(correctDailyActiveDates: Date[], today = new Date()): number {
   const dates = new Set(correctDailyActiveDates.map((d) => dateKey(d)));
 
-  let cursor = startOfTodayUTC(today);
+  let cursor = startOfTodayCT(today);
   if (!dates.has(dateKey(cursor))) {
     cursor = addDaysUTC(cursor, -1);
   }

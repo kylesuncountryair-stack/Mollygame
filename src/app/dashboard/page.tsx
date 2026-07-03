@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { startOfMonthUTC, startOfTodayUTC, endOfTodayUTC, startOfWeekUTC, endOfWeekUTC, monthLabel } from "@/lib/bonfire";
+import { startOfMonthCT, startOfTodayCT, endOfTodayCT, startOfWeekCT, endOfWeekCT, monthLabel } from "@/lib/bonfire";
 import { getLeaderboardRows } from "@/lib/leaderboard";
 import { computeStreak } from "@/lib/streak";
 import BonfireVisual from "@/components/BonfireVisual";
@@ -15,14 +15,14 @@ export default async function DashboardPage() {
 
   const [dailyQ, weeklyQ, monthlySum, allTimeSum, correctDailyAnswers, leaderboardRows] = await Promise.all([
     prisma.question.findFirst({
-      where: { type: "DAILY", activeDate: { gte: startOfTodayUTC(), lt: endOfTodayUTC() } },
+      where: { type: "DAILY", activeDate: { gte: startOfTodayCT(), lt: endOfTodayCT() } },
       orderBy: { createdAt: "desc" },
     }),
     prisma.question.findFirst({
-      where: { type: "WEEKLY", activeDate: { gte: startOfWeekUTC(), lt: endOfWeekUTC() } },
+      where: { type: "WEEKLY", activeDate: { gte: startOfWeekCT(), lt: endOfWeekCT() } },
       orderBy: { createdAt: "desc" },
     }),
-    prisma.logTransaction.aggregate({ where: { userId, createdAt: { gte: startOfMonthUTC() } }, _sum: { amount: true } }),
+    prisma.logTransaction.aggregate({ where: { userId, createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
     prisma.logTransaction.aggregate({ where: { userId }, _sum: { amount: true } }),
     prisma.answer.findMany({
       where: { userId, isCorrect: true, question: { type: "DAILY" } },

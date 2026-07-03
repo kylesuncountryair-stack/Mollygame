@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdminApi } from "@/lib/session";
+import { centralDateStringToUTC } from "@/lib/bonfire";
 
 export async function GET() {
   if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
       options,
       correctIndex,
       logsReward,
-      activeDate: new Date(activeDate),
+      activeDate: centralDateStringToUTC(activeDate),
     },
   });
 

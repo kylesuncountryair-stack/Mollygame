@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
+import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
 import BonfireVisual from "@/components/BonfireVisual";
 import Badge from "@/components/Badge";
 import StatCard from "@/components/StatCard";
@@ -13,7 +13,7 @@ export default async function ProfilePage() {
 
   const [answers, monthlySum, allTimeSum] = await Promise.all([
     prisma.answer.findMany({ where: { userId }, include: { question: true }, orderBy: { answeredAt: "desc" } }),
-    prisma.logTransaction.aggregate({ where: { userId, createdAt: { gte: startOfMonthUTC() } }, _sum: { amount: true } }),
+    prisma.logTransaction.aggregate({ where: { userId, createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
     prisma.logTransaction.aggregate({ where: { userId }, _sum: { amount: true } }),
   ]);
 

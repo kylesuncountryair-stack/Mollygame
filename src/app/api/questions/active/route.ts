@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/session";
-import { startOfTodayUTC, endOfTodayUTC, startOfWeekUTC, endOfWeekUTC } from "@/lib/bonfire";
+import { startOfTodayCT, endOfTodayCT, startOfWeekCT, endOfWeekCT } from "@/lib/bonfire";
 
 export async function GET() {
   const session = await getCurrentSession();
@@ -9,11 +9,11 @@ export async function GET() {
 
   const [daily, weekly] = await Promise.all([
     prisma.question.findFirst({
-      where: { type: "DAILY", activeDate: { gte: startOfTodayUTC(), lt: endOfTodayUTC() } },
+      where: { type: "DAILY", activeDate: { gte: startOfTodayCT(), lt: endOfTodayCT() } },
       orderBy: { createdAt: "desc" },
     }),
     prisma.question.findFirst({
-      where: { type: "WEEKLY", activeDate: { gte: startOfWeekUTC(), lt: endOfWeekUTC() } },
+      where: { type: "WEEKLY", activeDate: { gte: startOfWeekCT(), lt: endOfWeekCT() } },
       orderBy: { createdAt: "desc" },
     }),
   ]);

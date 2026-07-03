@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdminApi } from "@/lib/session";
+import { centralDateStringToUTC } from "@/lib/bonfire";
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -13,7 +14,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (Array.isArray(options)) data.options = options;
   if (typeof correctIndex === "number") data.correctIndex = correctIndex;
   if (typeof logsReward === "number") data.logsReward = logsReward;
-  if (activeDate) data.activeDate = new Date(activeDate);
+  if (activeDate) data.activeDate = centralDateStringToUTC(activeDate);
 
   const question = await prisma.question.update({ where: { id: params.id }, data });
   return NextResponse.json({ question });

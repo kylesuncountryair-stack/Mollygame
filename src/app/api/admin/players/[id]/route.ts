@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getTierForLogs, startOfMonthUTC } from "@/lib/bonfire";
+import { getTierForLogs, startOfMonthCT } from "@/lib/bonfire";
 import { getCurrentSession, requireAdminApi } from "@/lib/session";
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
@@ -24,7 +24,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     }),
     prisma.logTransaction.aggregate({ where: { userId: params.id }, _sum: { amount: true } }),
     prisma.logTransaction.aggregate({
-      where: { userId: params.id, createdAt: { gte: startOfMonthUTC() } },
+      where: { userId: params.id, createdAt: { gte: startOfMonthCT() } },
       _sum: { amount: true },
     }),
   ]);

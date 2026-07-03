@@ -42,7 +42,9 @@ export default function QuestionsList({ questions }: { questions: AdminQuestion[
           <div className="flex-1">
             <div className="mb-2 flex items-center gap-2">
               <Badge tone={q.type === "WEEKLY" ? "ember" : "neutral"}>{q.type}</Badge>
-              <span className="text-xs text-ash-500">{new Date(q.activeDate).toLocaleDateString()}</span>
+              <span className="text-xs text-ash-500">
+                {new Date(q.activeDate).toLocaleDateString(undefined, { timeZone: "America/Chicago" })}
+              </span>
               <span className="flex items-center gap-1 text-xs text-ember-300">
                 <Flame className="h-3 w-3" /> +{q.logsReward}
               </span>

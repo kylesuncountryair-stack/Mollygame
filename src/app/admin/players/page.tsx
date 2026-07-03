@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
+import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
 
 export default async function AdminPlayersPage() {
   const [players, admins] = await Promise.all([
@@ -19,7 +19,7 @@ export default async function AdminPlayersPage() {
   const [answerCounts, allTimeSums, monthlySums] = await Promise.all([
     prisma.answer.groupBy({ by: ["userId", "isCorrect"], _count: { _all: true } }),
     prisma.logTransaction.groupBy({ by: ["userId"], _sum: { amount: true } }),
-    prisma.logTransaction.groupBy({ by: ["userId"], where: { createdAt: { gte: startOfMonthUTC() } }, _sum: { amount: true } }),
+    prisma.logTransaction.groupBy({ by: ["userId"], where: { createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
   ]);
 
   const allTimeMap = new Map(allTimeSums.map((s) => [s.userId, s._sum.amount ?? 0]));

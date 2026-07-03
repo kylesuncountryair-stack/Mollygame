@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
+import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
 
 export type LeaderboardRow = {
   id: string;
@@ -18,7 +18,7 @@ export async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
   const users = await prisma.user.findMany({ select: { id: true, name: true, role: true } });
 
   const [monthlySums, allTimeSums] = await Promise.all([
-    prisma.logTransaction.groupBy({ by: ["userId"], where: { createdAt: { gte: startOfMonthUTC() } }, _sum: { amount: true } }),
+    prisma.logTransaction.groupBy({ by: ["userId"], where: { createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
     prisma.logTransaction.groupBy({ by: ["userId"], _sum: { amount: true } }),
   ]);
 

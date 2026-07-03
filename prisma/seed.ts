@@ -1,20 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../src/lib/password";
+import { startOfTodayCT, startOfWeekCT } from "../src/lib/bonfire";
 
 const prisma = new PrismaClient();
-
-function startOfTodayUTC() {
-  const d = new Date();
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-}
-
-function startOfThisWeekUTC() {
-  const d = startOfTodayUTC();
-  const day = d.getUTCDay(); // 0 = Sunday
-  const diff = (day + 6) % 7; // days since Monday
-  d.setUTCDate(d.getUTCDate() - diff);
-  return d;
-}
 
 async function main() {
   const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
@@ -47,7 +35,7 @@ async function main() {
         options: ["A point earned for a correct answer", "A type of firewood", "A player's rank", "A penalty"],
         correctIndex: 0,
         logsReward: 2,
-        activeDate: startOfTodayUTC(),
+        activeDate: startOfTodayCT(),
       },
     });
     await prisma.question.create({
@@ -57,7 +45,7 @@ async function main() {
         options: ["Every day", "Every month", "Every year", "Never"],
         correctIndex: 1,
         logsReward: 5,
-        activeDate: startOfThisWeekUTC(),
+        activeDate: startOfWeekCT(),
       },
     });
     console.log("Created sample daily and weekly questions.");

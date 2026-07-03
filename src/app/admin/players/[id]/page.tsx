@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
+import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
 import Badge from "@/components/Badge";
 import StatCard from "@/components/StatCard";
 import IssueLogsForm from "@/components/admin/IssueLogsForm";
@@ -22,7 +22,7 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
       orderBy: { createdAt: "desc" },
     }),
     prisma.logTransaction.aggregate({ where: { userId: params.id }, _sum: { amount: true } }),
-    prisma.logTransaction.aggregate({ where: { userId: params.id, createdAt: { gte: startOfMonthUTC() } }, _sum: { amount: true } }),
+    prisma.logTransaction.aggregate({ where: { userId: params.id, createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
   ]);
 
   const correct = answers.filter((a) => a.isCorrect).length;
