@@ -38,7 +38,7 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-navy-600 bg-bg-card shadow-glow">
+    <div className="w-full max-w-md overflow-hidden rounded-2xl border border-navy-600 bg-bg-card">
       <div className="flex flex-col items-center gap-2 bg-gradient-to-br from-navy-900 to-navy-700 p-8 text-center">
         <Flame className="h-10 w-10 text-ember-400" />
         <h1 className="font-display text-xl font-semibold leading-tight text-white">Sun Country Q3 Bonfire Challenge</h1>

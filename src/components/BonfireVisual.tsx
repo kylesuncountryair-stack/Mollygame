@@ -56,6 +56,10 @@ export function FlameGlyph({
 export const LOG_ROTATIONS = [-10, 10, 0, -4, 5, -13];
 export const LOG_COLORS = ["#6b4226", "#7a4d2b"];
 
+// Ember spawn offsets in percentage points from horizontal center (50%),
+// scattered across the flame's actual footprint instead of a single spot.
+const EMBER_OFFSETS = [-14, 10, -4, 18, -20, 6, -10, 20];
+
 export function Logs({ cx, groundY, count }: { cx: number; groundY: number; count: number }) {
   if (count === 0) return null;
   const width = 46 + count * 8;
@@ -97,7 +101,11 @@ export default function BonfireVisual({ logs, size = "lg" }: { logs: number; siz
               key={i}
               className="absolute bottom-12 h-1.5 w-1.5 rounded-full bg-ember-300 animate-ember"
               style={{
-                left: `${18 + ((i * 64) % 64)}%`,
+                // Spread around the flame's horizontal center (50%), not a
+                // fixed spot — the previous formula `(i * 64) % 64` was
+                // always exactly 0 for any whole i, so every ember spawned
+                // at the same 18% mark regardless of index.
+                left: `${50 + EMBER_OFFSETS[i % EMBER_OFFSETS.length]}%`,
                 animationDelay: `${i * 0.4}s`,
                 animationDuration: `${2.6 + (i % 3) * 0.4}s`,
                 // @ts-expect-error css custom property
