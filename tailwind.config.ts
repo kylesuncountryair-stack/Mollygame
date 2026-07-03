@@ -87,12 +87,27 @@ const config: Config = {
           "0%": { transform: "translateY(8px)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
         },
+        confettiBurst: {
+          "0%": { transform: "translate(-50%, -50%) rotate(0deg)", opacity: "1" },
+          "100%": {
+            transform:
+              "translate(calc(-50% + var(--tx, 20px)), calc(-50% + var(--ty, -30px))) rotate(var(--tr, 180deg))",
+            opacity: "0",
+          },
+        },
+        popIn: {
+          "0%": { transform: "scale(0.85)", opacity: "0" },
+          "60%": { transform: "scale(1.03)", opacity: "1" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
       },
       animation: {
         flicker: "flicker 2.4s ease-in-out infinite",
         ember: "ember 3s ease-in infinite",
         pulseGlow: "pulseGlow 2.5s ease-in-out infinite",
         rise: "rise 0.4s ease-out",
+        "confetti-burst": "confettiBurst 0.9s ease-out forwards",
+        "pop-in": "popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards",
       },
     },
   },

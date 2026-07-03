@@ -4,8 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, CalendarRange, Check, Flame, X } from "lucide-react";
 import Badge from "./Badge";
+import Confetti from "./Confetti";
+import TierUpBanner from "./TierUpBanner";
 
 type Answered = { selectedIndex: number; isCorrect: boolean; logsAwarded: number } | null;
+type TierUp = { label: string } | null;
 
 export type QuestionData = {
   id: string;
@@ -22,6 +25,11 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<Answered>(question?.answered ?? null);
   const [error, setError] = useState("");
+  // Only true right after a fresh submission in this session — keeps the
+  // confetti/tier-up celebration from replaying every time the page loads
+  // and finds a question that was already answered earlier.
+  const [justAnswered, setJustAnswered] = useState(false);
+  const [tierUp, setTierUp] = useState<TierUp>(null);
 
   if (!question) {
     return (
@@ -49,6 +57,8 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
         return;
       }
       setResult({ selectedIndex: selected, isCorrect: data.isCorrect, logsAwarded: data.logsAwarded });
+      setJustAnswered(true);
+      if (data.tierUp) setTierUp({ label: data.tierUp.label });
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -105,15 +115,25 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
         >
           {submitting ? "Submitting..." : "Submit Answer"}
         </button>
+      ) : result.isCorrect ? (
+        <div className="relative mt-5 overflow-hidden rounded-xl bg-emerald-500/10 px-4 py-5">
+          {justAnswered && <Confetti />}
+          <div className="relative flex flex-col items-center gap-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-bg-panel shadow-glow">
+              <Check className="h-5 w-5 text-emerald-400" />
+            </div>
+            <div className="text-center font-medium text-emerald-300">
+              Correct! +{result.logsAwarded} logs added to your bonfire.
+            </div>
+          </div>
+        </div>
       ) : (
-        <div
-          className={`mt-5 rounded-xl px-4 py-3 text-center font-medium ${
-            result.isCorrect ? "bg-emerald-500/10 text-emerald-300" : "bg-rose-500/10 text-rose-300"
-          }`}
-        >
-          {result.isCorrect ? `Correct! +${result.logsAwarded} logs added to your bonfire.` : "Not quite — better luck on the next one."}
+        <div className="mt-5 rounded-xl bg-rose-500/10 px-4 py-3 text-center font-medium text-rose-300">
+          Not quite — better luck on the next one.
         </div>
       )}
+
+      {justAnswered && tierUp && <TierUpBanner tier={tierUp} onClose={() => setTierUp(null)} />}
     </div>
   );
 }

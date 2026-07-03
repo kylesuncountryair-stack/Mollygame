@@ -11,3 +11,21 @@ body {
 ::selection {
   background: rgba(245, 130, 50, 0.35);
 }
+
+/* Visible keyboard-navigation focus ring, applied everywhere, regardless of
+   whether an individual element also uses Tailwind's `outline-none` (which
+   several inputs do, replacing it with a border-color change too subtle to
+   rely on alone). `:focus-visible` only triggers for keyboard/programmatic
+   focus, not mouse clicks, so this doesn't add a ring on every click.
+   Element+pseudo-class selectors here (specificity 0-1-1) beat Tailwind's
+   single-class utilities (0-1-0), so this reliably wins without needing
+   !important or touching every component's className. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #f58232;
+  outline-offset: 2px;
+}

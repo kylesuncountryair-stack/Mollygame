@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/session";
+import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getCurrentSession();
@@ -24,6 +25,19 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   const isCorrect = selectedIndex === question.correctIndex;
   const logsAwarded = isCorrect ? question.logsReward : 0;
+
+  // Snapshot the tier before this answer lands, so we can tell the client
+  // whether this specific answer pushed the player into a new tier (for the
+  // tier-up celebration banner).
+  const monthlySumBefore = await prisma.logTransaction.aggregate({
+    where: { userId: session.sub, createdAt: { gte: startOfMonthCT() } },
+    _sum: { amount: true },
+  });
+  const logsBefore = monthlySumBefore._sum.amount ?? 0;
+  const logsAfter = logsBefore + logsAwarded;
+  const tierBefore = getTierForLogs(logsBefore);
+  const tierAfter = getTierForLogs(logsAfter);
+  const tierUp = isCorrect && tierAfter.key !== tierBefore.key ? { key: tierAfter.key, label: tierAfter.label } : null;
 
   const answer = await prisma.$transaction(async (tx) => {
     const created = await tx.answer.create({
@@ -53,5 +67,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     logsAwarded,
     correctIndex: question.correctIndex,
     answerId: answer.id,
+    tierUp,
   });
 }
