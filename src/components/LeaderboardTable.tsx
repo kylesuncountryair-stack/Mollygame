@@ -16,9 +16,9 @@ export type LeaderboardRow = {
 };
 
 const medalColor: Record<number, string> = {
-  1: "text-yellow-400",
-  2: "text-slate-300",
-  3: "text-amber-600",
+  1: "text-gold-400",
+  2: "text-navy-100",
+  3: "text-ember-600",
 };
 
 export default function LeaderboardTable({
@@ -82,20 +82,20 @@ export default function LeaderboardTable({
           {rows.map((r) => {
             const isSelf = r.id === highlightId;
             return (
-              <tr key={r.id} className={`border-t border-ash-900 ${isSelf ? "bg-ember-500/10" : ""}`}>
+              <tr key={r.id} className={`border-t border-ash-900 ${isSelf ? "bg-navy-500/25" : ""}`}>
                 <td className="px-5 py-3">
                   <span className={`flex items-center gap-1 font-semibold ${medalColor[r.rank] ?? "text-ash-300"}`}>
                     {r.rank <= 3 ? <Medal className="h-4 w-4" /> : null}#{r.rank}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-ash-100">
+                <td className="px-5 py-3 text-white">
                   <span className="flex items-center gap-2">
                     {r.name}
                     {isSelf && <span className="text-xs text-ash-500">(you)</span>}
                     {r.role === "ADMIN" && <Badge tone="neutral">Admin</Badge>}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-ember-300">{r.tier}</td>
+                <td className="px-5 py-3 text-gold-300">{r.tier}</td>
                 <td className="px-5 py-3 text-right font-semibold text-ash-100">
                   <span className="inline-flex items-center gap-1">
                     <Flame className="h-3.5 w-3.5 text-ember-400" />
@@ -111,7 +111,7 @@ export default function LeaderboardTable({
                         disabled={pendingId === r.id}
                         className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium disabled:opacity-40 ${
                           following.has(r.id)
-                            ? "border-ember-500/40 bg-ember-500/10 text-ember-200 hover:border-rose-500 hover:text-rose-300"
+                            ? "border-navy-400 bg-navy-500/20 text-navy-100 hover:border-rose-500 hover:text-rose-300"
                             : "border-ash-700 text-ash-300 hover:border-ember-500 hover:text-ember-200"
                         }`}
                       >

@@ -22,9 +22,9 @@ export default function Navbar({ name, role }: { name: string; role: "PLAYER" | 
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-ash-900 bg-bg/90 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-navy-700 bg-gradient-to-r from-navy-900 to-navy-700 shadow-md">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-3">
-        <Link href="/dashboard" className="flex shrink-0 items-center gap-2 font-display text-base font-bold text-ember-200">
+        <Link href="/dashboard" className="flex shrink-0 items-center gap-2 font-display text-base font-semibold text-white">
           <Flame className="h-6 w-6 shrink-0 text-ember-400" />
           <span className="hidden md:inline">Sun Country Q3 Bonfire Challenge</span>
           <span className="md:hidden">Bonfire Challenge</span>
@@ -37,8 +37,8 @@ export default function Navbar({ name, role }: { name: string; role: "PLAYER" | 
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  active ? "bg-ember-500/15 text-ember-200" : "text-ash-300 hover:bg-ash-900 hover:text-ash-100"
+                className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+                  active ? "border-ember-400 text-white" : "border-transparent text-navy-200 hover:text-white"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -49,10 +49,10 @@ export default function Navbar({ name, role }: { name: string; role: "PLAYER" | 
         </nav>
 
         <div className="flex items-center gap-3">
-          <span className="hidden text-sm text-ash-300 sm:inline">{name}</span>
+          <span className="hidden text-sm text-navy-200 sm:inline">{name}</span>
           <button
             onClick={logout}
-            className="flex items-center gap-1.5 rounded-lg border border-ash-700 px-3 py-1.5 text-sm text-ash-300 transition-colors hover:border-ember-500 hover:text-ember-200"
+            className="flex items-center gap-1.5 rounded-lg border border-navy-400 px-3 py-1.5 text-sm text-navy-100 transition-colors hover:border-ember-400 hover:text-white"
           >
             <LogOut className="h-4 w-4" />
             Logout

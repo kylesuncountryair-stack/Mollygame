@@ -70,23 +70,21 @@ export default async function DashboardPage() {
             <BonfireVisual logs={monthlyLogs} />
           </div>
 
-          <div className="rounded-2xl border border-ash-900 bg-bg-card p-4">
-            <div className="grid grid-cols-3 divide-x divide-ash-900">
-              <div className="flex flex-col items-center gap-1 px-2 text-center">
-                <Flame className="h-4 w-4 text-ember-400" />
-                <div className="font-display text-lg font-bold text-ash-100">{streak}</div>
-                <div className="text-xs text-ash-500">day streak</div>
-              </div>
-              <div className="flex flex-col items-center gap-1 px-2 text-center">
-                <Award className="h-4 w-4 text-ember-400" />
-                <div className="font-display text-lg font-bold text-ash-100">{selfRow ? `#${selfRow.rank}` : "—"}</div>
-                <div className="text-xs text-ash-500">rank</div>
-              </div>
-              <div className="flex flex-col items-center gap-1 px-2 text-center">
-                <Trophy className="h-4 w-4 text-ember-400" />
-                <div className="font-display text-lg font-bold text-ash-100">{allTimeLogs}</div>
-                <div className="text-xs text-ash-500">all-time logs</div>
-              </div>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-lg border border-ash-700 border-l-[3px] border-l-ember-500 bg-bg-card px-2 py-3 text-center">
+              <Flame className="mx-auto h-4 w-4 text-ember-400" />
+              <div className="font-display text-lg font-semibold text-white">{streak}</div>
+              <div className="text-xs text-ash-500">day streak</div>
+            </div>
+            <div className="rounded-lg border border-ash-700 border-l-[3px] border-l-gold-400 bg-bg-card px-2 py-3 text-center">
+              <Award className="mx-auto h-4 w-4 text-gold-400" />
+              <div className="font-display text-lg font-semibold text-white">{selfRow ? `#${selfRow.rank}` : "—"}</div>
+              <div className="text-xs text-ash-500">rank</div>
+            </div>
+            <div className="rounded-lg border border-ash-700 border-l-[3px] border-l-navy-300 bg-bg-card px-2 py-3 text-center">
+              <Trophy className="mx-auto h-4 w-4 text-navy-300" />
+              <div className="font-display text-lg font-semibold text-white">{allTimeLogs}</div>
+              <div className="text-xs text-ash-500">all-time logs</div>
             </div>
           </div>
         </div>

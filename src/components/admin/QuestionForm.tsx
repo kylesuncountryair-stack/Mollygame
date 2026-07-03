@@ -176,7 +176,7 @@ export default function QuestionForm({
       <button
         type="submit"
         disabled={loading}
-        className="rounded-lg bg-gradient-to-r from-ember-500 to-ember-600 px-5 py-2 font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] disabled:opacity-50"
+        className="rounded-lg bg-ember-500 hover:bg-ember-600 px-5 py-2 font-semibold text-white shadow-glow transition-colors disabled:opacity-50"
       >
         {loading ? "Saving..." : isEdit ? "Save Changes" : "Create Question"}
       </button>

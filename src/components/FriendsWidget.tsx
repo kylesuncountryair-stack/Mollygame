@@ -72,7 +72,7 @@ export default function FriendsWidget({
             <div
               key={row.id}
               className={`flex items-center justify-between rounded-xl border px-4 py-2.5 ${
-                row.isMe ? "border-ember-500/40 bg-ember-500/10" : "border-ash-800 bg-bg-panel"
+                row.isMe ? "border-navy-400 bg-navy-500/25" : "border-ash-700 bg-bg-panel"
               }`}
             >
               <div className="flex items-center gap-3">

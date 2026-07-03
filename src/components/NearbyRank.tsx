@@ -21,7 +21,7 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
           <div
             key={row.id}
             className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm ${
-              row.id === selfId ? "border border-ember-500/40 bg-ember-500/10" : ""
+              row.id === selfId ? "border border-navy-400 bg-navy-500/25" : ""
             }`}
           >
             <div className="flex items-center gap-2">

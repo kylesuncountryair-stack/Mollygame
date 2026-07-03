@@ -23,15 +23,15 @@ export default function BonfireTierGuide() {
         >
           <defs>
             <radialGradient id="flameCoreGuide" cx="50%" cy="70%" r="60%">
-              <stop offset="0%" stopColor="#fff8ec" />
-              <stop offset="30%" stopColor="#ffe3bf" />
-              <stop offset="55%" stopColor="#ffb066" />
-              <stop offset="80%" stopColor="#ff7f2a" />
-              <stop offset="100%" stopColor="#c0330d" />
+              <stop offset="0%" stopColor="#fff3e0" />
+              <stop offset="28%" stopColor="#ffd27a" />
+              <stop offset="55%" stopColor="#fb9450" />
+              <stop offset="80%" stopColor="#f58232" />
+              <stop offset="100%" stopColor="#b8530f" />
             </radialGradient>
             <radialGradient id="glowGuide" cx="50%" cy="55%" r="50%">
-              <stop offset="0%" stopColor="#ff5e1a" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#ff5e1a" stopOpacity="0" />
+              <stop offset="0%" stopColor="#f58232" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#f58232" stopOpacity="0" />
             </radialGradient>
           </defs>
 
@@ -45,7 +45,7 @@ export default function BonfireTierGuide() {
                   <circle cx={cx} cy={GROUND_Y - 50} r={glowR * 0.68} fill="url(#glowGuide)" opacity={0.7} />
                 )}
 
-                <ellipse cx={cx} cy={GROUND_Y + 6} rx={16 + tier.logCount * 5} ry={5} fill="#161b28" />
+                <ellipse cx={cx} cy={GROUND_Y + 6} rx={16 + tier.logCount * 5} ry={5} fill="#081226" />
 
                 <Logs cx={cx} groundY={GROUND_Y} count={tier.logCount} />
 
@@ -77,7 +77,7 @@ export default function BonfireTierGuide() {
                   fontFamily="system-ui, sans-serif"
                   fontSize="15"
                   fontWeight={700}
-                  fill="#e7e9ee"
+                  fill="#f5f7fb"
                 >
                   {tier.label}
                 </text>
@@ -87,7 +87,7 @@ export default function BonfireTierGuide() {
                   textAnchor="middle"
                   fontFamily="system-ui, sans-serif"
                   fontSize="11"
-                  fill="#6f7690"
+                  fill="#7d93b8"
                 >
                   {tier.min}+ logs
                 </text>

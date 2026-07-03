@@ -109,15 +109,15 @@ export default function BonfireVisual({ logs, size = "lg" }: { logs: number; siz
         <svg viewBox="0 0 200 200" className="h-full w-full">
           <defs>
             <radialGradient id="flameCoreMain" cx="50%" cy="70%" r="60%">
-              <stop offset="0%" stopColor="#fff8ec" />
-              <stop offset="30%" stopColor="#ffe3bf" />
-              <stop offset="55%" stopColor="#ffb066" />
-              <stop offset="80%" stopColor="#ff7f2a" />
-              <stop offset="100%" stopColor="#c0330d" />
+              <stop offset="0%" stopColor="#fff3e0" />
+              <stop offset="28%" stopColor="#ffd27a" />
+              <stop offset="55%" stopColor="#fb9450" />
+              <stop offset="80%" stopColor="#f58232" />
+              <stop offset="100%" stopColor="#b8530f" />
             </radialGradient>
             <radialGradient id="glowMain" cx="50%" cy="55%" r="50%">
-              <stop offset="0%" stopColor="#ff5e1a" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#ff5e1a" stopOpacity="0" />
+              <stop offset="0%" stopColor="#f58232" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#f58232" stopOpacity="0" />
             </radialGradient>
           </defs>
 
@@ -126,7 +126,7 @@ export default function BonfireVisual({ logs, size = "lg" }: { logs: number; siz
             <circle cx={cx} cy={groundY - 60} r={glowR * 0.68} fill="url(#glowMain)" opacity={0.7} />
           )}
 
-          <ellipse cx={cx} cy={groundY + 6} rx={20 + tier.logCount * 6} ry={6} fill="#161b28" />
+          <ellipse cx={cx} cy={groundY + 6} rx={20 + tier.logCount * 6} ry={6} fill="#081226" />
 
           <Logs cx={cx} groundY={groundY} count={tier.logCount} />
 
@@ -147,13 +147,13 @@ export default function BonfireVisual({ logs, size = "lg" }: { logs: number; siz
       </div>
 
       <div className="text-center">
-        <div className="font-display text-2xl font-bold text-ember-200">{tier.label}</div>
+        <div className="font-display text-2xl font-semibold text-gold-300">{tier.label}</div>
         <div className="text-sm text-ash-300">{logs} logs this month</div>
         {next && (
           <div className="mt-2 w-40">
             <div className="h-2 w-full overflow-hidden rounded-full bg-ash-900">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-ember-500 to-ember-300 transition-all"
+                className="h-full rounded-full bg-gradient-to-r from-ember-500 to-gold-400 transition-all"
                 style={{ width: `${progress * 100}%` }}
               />
             </div>

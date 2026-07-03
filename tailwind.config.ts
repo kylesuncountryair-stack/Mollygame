@@ -8,29 +8,56 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Sun Country's actual brand palette: cadmium orange (#F58232) and
+        // midnight navy (#004885), used as the two real accent colors
+        // instead of a generic single warm gradient. Gold is a third,
+        // narrower accent reserved for rank/tier moments.
         bg: {
-          DEFAULT: "#0b0f1a",
-          panel: "#121828",
-          card: "#171f33",
+          DEFAULT: "#081226",
+          panel: "#0a1830",
+          card: "#0d1c38",
         },
         ember: {
-          50: "#fff4e6",
-          100: "#ffe3bf",
-          200: "#ffc078",
-          300: "#ff9f43",
-          400: "#ff7f2a",
-          500: "#ff5e1a",
-          600: "#e8450f",
-          700: "#c0330d",
-          800: "#8f2408",
-          900: "#5c1605",
+          50: "#fff3e8",
+          100: "#ffe0c2",
+          200: "#ffc48a",
+          300: "#ffab5c",
+          400: "#fb9450",
+          500: "#f58232",
+          600: "#e06a1c",
+          700: "#b8530f",
+          800: "#8a3d0a",
+          900: "#5c2806",
+        },
+        navy: {
+          50: "#e9f0f9",
+          100: "#c7d6ee",
+          200: "#9fb8d9",
+          300: "#4a9eff",
+          400: "#2f5490",
+          500: "#22406e",
+          600: "#1c3157",
+          700: "#16274a",
+          800: "#0d1c38",
+          900: "#00284d",
+        },
+        gold: {
+          200: "#ffe3ac",
+          300: "#ffd27a",
+          400: "#ffc24a",
+          500: "#f0ab1e",
+          600: "#c98a0c",
         },
         ash: {
-          100: "#e7e9ee",
-          300: "#aab0c2",
-          500: "#6f7690",
-          700: "#3b4160",
-          900: "#1c2136",
+          100: "#f5f7fb",
+          200: "#c7d6ee",
+          300: "#9fb8d9",
+          400: "#93a4c2",
+          500: "#7d93b8",
+          600: "#5f7396",
+          700: "#1c3157",
+          800: "#192c50",
+          900: "#16274a",
         },
       },
       fontFamily: {
@@ -38,8 +65,8 @@ const config: Config = {
         body: ["var(--font-body)", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        glow: "0 0 40px rgba(255, 126, 42, 0.45)",
-        "glow-lg": "0 0 90px rgba(255, 110, 20, 0.55)",
+        glow: "0 0 40px rgba(245, 130, 50, 0.4)",
+        "glow-lg": "0 0 90px rgba(245, 130, 50, 0.5)",
       },
       keyframes: {
         flicker: {

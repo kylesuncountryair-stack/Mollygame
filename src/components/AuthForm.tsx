@@ -38,12 +38,14 @@ export default function AuthForm() {
   }
 
   return (
-    <div className="w-full max-w-sm rounded-2xl border border-ash-900 bg-bg-card p-8 shadow-glow">
-      <div className="mb-6 flex flex-col items-center gap-2 text-center">
+    <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-navy-600 bg-bg-card shadow-glow">
+      <div className="flex flex-col items-center gap-2 bg-gradient-to-br from-navy-900 to-navy-700 p-8 text-center">
         <Flame className="h-10 w-10 text-ember-400" />
-        <h1 className="font-display text-xl font-bold leading-tight text-ash-100">Sun Country Q3 Bonfire Challenge</h1>
-        <p className="text-sm text-ash-500">Answer questions. Earn logs. Build the biggest bonfire.</p>
+        <h1 className="font-display text-xl font-semibold leading-tight text-white">Sun Country Q3 Bonfire Challenge</h1>
+        <p className="text-sm text-navy-200">Answer questions. Earn logs. Build the biggest bonfire.</p>
       </div>
+
+      <div className="p-8 pt-6">
 
       <div className="mb-6 flex rounded-xl bg-bg-panel p-1">
         {(["login", "signup"] as const).map((m) => (
@@ -147,12 +149,13 @@ export default function AuthForm() {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-ember-500 to-ember-600 py-2.5 font-semibold text-white transition-transform hover:scale-[1.01] disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-ember-500 py-2.5 font-semibold text-white transition-colors hover:bg-ember-600 disabled:opacity-50"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           {mode === "login" ? "Log In" : "Create Account"}
         </button>
       </form>
+      </div>
     </div>
   );
 }

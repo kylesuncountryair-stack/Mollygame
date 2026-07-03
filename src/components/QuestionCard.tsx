@@ -58,7 +58,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   return (
     <div className="animate-rise rounded-2xl border border-ash-900 bg-bg-card p-6">
       <div className="mb-4 flex items-center justify-between">
-        <Badge tone={isWeekly ? "ember" : "neutral"}>
+        <Badge tone={isWeekly ? "gold" : "ember"}>
           {isWeekly ? <CalendarRange className="h-3 w-3" /> : <CalendarDays className="h-3 w-3" />}
           {isWeekly ? "Weekly Question" : "Daily Question"}
         </Badge>
@@ -101,7 +101,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
         <button
           onClick={submit}
           disabled={selected === null || submitting}
-          className="mt-5 w-full rounded-xl bg-gradient-to-r from-ember-500 to-ember-600 py-2.5 font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-5 w-full rounded-xl bg-ember-500 py-2.5 font-semibold text-white transition-colors hover:bg-ember-600 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {submitting ? "Submitting..." : "Submit Answer"}
         </button>

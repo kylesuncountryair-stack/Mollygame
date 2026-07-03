@@ -88,7 +88,7 @@ export default function ChangePasswordForm() {
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-gradient-to-r from-ember-500 to-ember-600 px-5 py-2 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
+          className="rounded-lg bg-ember-500 hover:bg-ember-600 px-5 py-2 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
         >
           {loading ? "Saving..." : "Update Password"}
         </button>

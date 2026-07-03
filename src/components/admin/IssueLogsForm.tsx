@@ -71,7 +71,7 @@ export default function IssueLogsForm({ playerId }: { playerId: string }) {
         <button
           onClick={() => submit(1)}
           disabled={loading}
-          className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-ember-500 to-ember-600 px-4 py-2 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg bg-ember-500 hover:bg-ember-600 px-4 py-2 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
         >
           <Plus className="h-4 w-4" /> <Flame className="h-4 w-4" /> Grant Logs
         </button>
