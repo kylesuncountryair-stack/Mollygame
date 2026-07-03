@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, CalendarRange, Check, Flame, HelpCircle, X } from "lucide-react";
 import Badge from "./Badge";
@@ -30,6 +30,18 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   // and finds a question that was already answered earlier.
   const [justAnswered, setJustAnswered] = useState(false);
   const [tierUp, setTierUp] = useState<TierUp>(null);
+  // The correct/incorrect banner fades out on its own after a while instead
+  // of sitting there permanently — otherwise every single time you revisit
+  // an already-answered question, you'd see the same "Correct!" message
+  // parked under the options forever.
+  const [bannerVisible, setBannerVisible] = useState(true);
+
+  useEffect(() => {
+    if (!result) return;
+    setBannerVisible(true);
+    const timer = setTimeout(() => setBannerVisible(false), 30000);
+    return () => clearTimeout(timer);
+  }, [result]);
 
   if (!question) {
     return (
@@ -117,8 +129,12 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
           {submitting ? "Submitting..." : "Submit Answer"}
         </button>
       ) : result.isCorrect ? (
-        <div className="relative mt-5 overflow-hidden rounded-xl bg-emerald-500/10 px-4 py-5">
-          {justAnswered && <Confetti />}
+        <div
+          className={`relative overflow-hidden rounded-xl bg-emerald-500/10 transition-all duration-500 ease-out ${
+            bannerVisible ? "mt-5 max-h-40 px-4 py-5 opacity-100" : "mt-0 max-h-0 px-4 py-0 opacity-0"
+          }`}
+        >
+          {justAnswered && bannerVisible && <Confetti />}
           <div className="relative flex flex-col items-center gap-2">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-bg-panel shadow-glow">
               <Check className="h-5 w-5 text-emerald-400" />
@@ -129,7 +145,11 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
           </div>
         </div>
       ) : (
-        <div className="mt-5 rounded-xl bg-rose-500/10 px-4 py-3 text-center font-medium text-rose-300">
+        <div
+          className={`overflow-hidden rounded-xl bg-rose-500/10 text-center font-medium text-rose-300 transition-all duration-500 ease-out ${
+            bannerVisible ? "mt-5 max-h-40 px-4 py-3 opacity-100" : "mt-0 max-h-0 px-4 py-0 opacity-0"
+          }`}
+        >
           Not quite — better luck on the next one.
         </div>
       )}
