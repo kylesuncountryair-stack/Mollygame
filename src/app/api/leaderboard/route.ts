@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
+import { getLeaderboardRows } from "@/lib/leaderboard";
 
 // Without this, Next.js statically caches this route at build time since it
 // doesn't read cookies/headers — meaning it would keep serving the same
@@ -8,41 +7,6 @@ import { startOfMonthUTC, getTierForLogs } from "@/lib/bonfire";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const players = await prisma.user.findMany({ select: { id: true, name: true, email: true, role: true } });
-
-  const [monthlySums, allTimeSums] = await Promise.all([
-    prisma.logTransaction.groupBy({
-      by: ["userId"],
-      where: { createdAt: { gte: startOfMonthUTC() } },
-      _sum: { amount: true },
-    }),
-    prisma.logTransaction.groupBy({
-      by: ["userId"],
-      _sum: { amount: true },
-    }),
-  ]);
-
-  const monthlyMap = new Map(monthlySums.map((m) => [m.userId, m._sum.amount ?? 0]));
-  const allTimeMap = new Map(allTimeSums.map((m) => [m.userId, m._sum.amount ?? 0]));
-
-  const rows = players.map((p) => {
-    const monthlyLogs = monthlyMap.get(p.id) ?? 0;
-    const allTimeLogs = allTimeMap.get(p.id) ?? 0;
-    const tier = getTierForLogs(monthlyLogs);
-    return {
-      id: p.id,
-      name: p.name,
-      role: p.role,
-      monthlyLogs,
-      allTimeLogs,
-      tier: tier.label,
-      tierKey: tier.key,
-    };
-  });
-
-  rows.sort((a, b) => b.monthlyLogs - a.monthlyLogs || b.allTimeLogs - a.allTimeLogs);
-
-  return NextResponse.json({
-    rows: rows.map((r, i) => ({ ...r, rank: i + 1 })),
-  });
+  const rows = await getLeaderboardRows();
+  return NextResponse.json({ rows });
 }

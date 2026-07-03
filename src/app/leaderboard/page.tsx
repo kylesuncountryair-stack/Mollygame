@@ -1,35 +1,11 @@
 import { getCurrentSession } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
-import { startOfMonthUTC, getTierForLogs, monthLabel } from "@/lib/bonfire";
-import LeaderboardTable, { type LeaderboardRow } from "@/components/LeaderboardTable";
+import { monthLabel } from "@/lib/bonfire";
+import { getLeaderboardRows } from "@/lib/leaderboard";
+import LeaderboardTable from "@/components/LeaderboardTable";
 
 export default async function LeaderboardPage() {
   const session = await getCurrentSession();
-
-  const players = await prisma.user.findMany({ select: { id: true, name: true, role: true } });
-  const [monthlySums, allTimeSums] = await Promise.all([
-    prisma.logTransaction.groupBy({ by: ["userId"], where: { createdAt: { gte: startOfMonthUTC() } }, _sum: { amount: true } }),
-    prisma.logTransaction.groupBy({ by: ["userId"], _sum: { amount: true } }),
-  ]);
-  const monthlyMap = new Map(monthlySums.map((m) => [m.userId, m._sum.amount ?? 0]));
-  const allTimeMap = new Map(allTimeSums.map((m) => [m.userId, m._sum.amount ?? 0]));
-
-  const rows: LeaderboardRow[] = players
-    .map((p) => {
-      const monthlyLogs = monthlyMap.get(p.id) ?? 0;
-      const allTimeLogs = allTimeMap.get(p.id) ?? 0;
-      return {
-        id: p.id,
-        name: p.name,
-        role: p.role,
-        monthlyLogs,
-        allTimeLogs,
-        tier: getTierForLogs(monthlyLogs).label,
-        rank: 0,
-      };
-    })
-    .sort((a, b) => b.monthlyLogs - a.monthlyLogs || b.allTimeLogs - a.allTimeLogs)
-    .map((r, i) => ({ ...r, rank: i + 1 }));
+  const rows = await getLeaderboardRows();
 
   return (
     <div className="space-y-6">

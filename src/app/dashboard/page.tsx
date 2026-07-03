@@ -1,16 +1,20 @@
 import { getCurrentSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { startOfMonthUTC, startOfTodayUTC, endOfTodayUTC, startOfWeekUTC, endOfWeekUTC, monthLabel } from "@/lib/bonfire";
+import { getLeaderboardRows } from "@/lib/leaderboard";
+import { computeStreak } from "@/lib/streak";
 import BonfireVisual from "@/components/BonfireVisual";
 import QuestionCard from "@/components/QuestionCard";
 import StatCard from "@/components/StatCard";
-import { CheckCircle2, ListChecks, Trophy } from "lucide-react";
+import NearbyRank from "@/components/NearbyRank";
+import FriendsWidget from "@/components/FriendsWidget";
+import { Award, Flame, Trophy } from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await getCurrentSession();
   const userId = session!.sub;
 
-  const [dailyQ, weeklyQ, monthlySum, allTimeSum, answeredCount, correctCount] = await Promise.all([
+  const [dailyQ, weeklyQ, monthlySum, allTimeSum, correctDailyAnswers, leaderboardRows] = await Promise.all([
     prisma.question.findFirst({
       where: { type: "DAILY", activeDate: { gte: startOfTodayUTC(), lt: endOfTodayUTC() } },
       orderBy: { createdAt: "desc" },
@@ -21,8 +25,11 @@ export default async function DashboardPage() {
     }),
     prisma.logTransaction.aggregate({ where: { userId, createdAt: { gte: startOfMonthUTC() } }, _sum: { amount: true } }),
     prisma.logTransaction.aggregate({ where: { userId }, _sum: { amount: true } }),
-    prisma.answer.count({ where: { userId } }),
-    prisma.answer.count({ where: { userId, isCorrect: true } }),
+    prisma.answer.findMany({
+      where: { userId, isCorrect: true, question: { type: "DAILY" } },
+      select: { question: { select: { activeDate: true } } },
+    }),
+    getLeaderboardRows(),
   ]);
 
   const ids = [dailyQ?.id, weeklyQ?.id].filter(Boolean) as string[];
@@ -48,6 +55,8 @@ export default async function DashboardPage() {
 
   const monthlyLogs = monthlySum._sum.amount ?? 0;
   const allTimeLogs = allTimeSum._sum.amount ?? 0;
+  const streak = computeStreak(correctDailyAnswers.map((a) => a.question.activeDate));
+  const selfRow = leaderboardRows.find((r) => r.id === userId);
 
   return (
     <div className="space-y-8">
@@ -62,15 +71,29 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard icon={Flame} label="Current streak" value={streak} hint={streak === 1 ? "day" : "days"} />
+          <StatCard
+            icon={Award}
+            label="Your rank"
+            value={selfRow ? `#${selfRow.rank}` : "—"}
+            hint={selfRow ? `of ${leaderboardRows.length} this month` : undefined}
+          />
           <StatCard icon={Trophy} label="All-time logs" value={allTimeLogs} />
-          <StatCard icon={ListChecks} label="Questions answered" value={answeredCount} />
-          <StatCard icon={CheckCircle2} label="Correct answers" value={correctCount} />
         </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <QuestionCard question={attach(dailyQ)} />
         <QuestionCard question={attach(weeklyQ)} />
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {selfRow && <NearbyRank rows={leaderboardRows} selfId={userId} />}
+        {selfRow && (
+          <FriendsWidget
+            me={{ id: userId, name: session!.name, monthlyLogs: selfRow.monthlyLogs, allTimeLogs: selfRow.allTimeLogs, tier: selfRow.tier }}
+          />
+        )}
       </div>
     </div>
   );

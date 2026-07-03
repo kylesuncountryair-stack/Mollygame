@@ -35,6 +35,8 @@ model User {
   answers             Answer[]
   logTransactions     LogTransaction[] @relation("PlayerTransactions")
   issuedTransactions  LogTransaction[] @relation("IssuedByAdmin")
+  following           Follow[]         @relation("Follower")
+  followedBy          Follow[]         @relation("Following")
 }
 
 model Question {
@@ -80,4 +82,19 @@ model LogTransaction {
   issuedBy User? @relation("IssuedByAdmin", fields: [issuedById], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
+}
+
+// A player following another player just to watch their rank on a small,
+// friendlier "mini leaderboard" on the dashboard. One-directional and
+// doesn't require the other person's approval — low stakes, internal game.
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
 }
