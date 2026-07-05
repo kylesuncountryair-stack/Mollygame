@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Flame, LayoutDashboard, Trophy, User, ShieldCheck, LogOut } from "lucide-react";
+import { Flame, History, LayoutDashboard, Trophy, User, ShieldCheck, LogOut } from "lucide-react";
 
 export default function Navbar({ name, role }: { name: string; role: "PLAYER" | "ADMIN" }) {
   const pathname = usePathname();
@@ -11,6 +11,7 @@ export default function Navbar({ name, role }: { name: string; role: "PLAYER" | 
   const links = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+    { href: "/history", label: "History", icon: History },
     { href: "/profile", label: "Profile", icon: User },
     ...(role === "ADMIN" ? [{ href: "/admin", label: "Admin", icon: ShieldCheck }] : []),
   ];

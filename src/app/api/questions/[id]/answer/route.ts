@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/session";
 import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
+import { tryTriggerSparkChain } from "@/lib/sparkChain";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getCurrentSession();
@@ -62,11 +63,16 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return created;
   });
 
+  // Best-effort: a spark chain is a small bonus, not core game logic, so a
+  // failure here shouldn't fail the answer submission itself.
+  const sparkChain = isCorrect ? await tryTriggerSparkChain(session.sub).catch(() => null) : null;
+
   return NextResponse.json({
     isCorrect,
     logsAwarded,
     correctIndex: question.correctIndex,
     answerId: answer.id,
     tierUp,
+    sparkChain,
   });
 }

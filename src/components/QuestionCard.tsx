@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, CalendarRange, Check, Flame, HelpCircle, X } from "lucide-react";
+import { CalendarDays, CalendarRange, Check, Flame, HelpCircle, Sparkles, X } from "lucide-react";
 import Badge from "./Badge";
 import Confetti from "./Confetti";
 import TierUpBanner from "./TierUpBanner";
 
 type Answered = { selectedIndex: number; isCorrect: boolean; logsAwarded: number } | null;
 type TierUp = { label: string } | null;
+type SparkChain = { friendName: string; bonus: number } | null;
 
 export type QuestionData = {
   id: string;
@@ -30,6 +31,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   // and finds a question that was already answered earlier.
   const [justAnswered, setJustAnswered] = useState(false);
   const [tierUp, setTierUp] = useState<TierUp>(null);
+  const [sparkChain, setSparkChain] = useState<SparkChain>(null);
   // The correct/incorrect banner only shows right after a fresh submission
   // in this session, and fades out on its own after 30 seconds. It starts
   // hidden (not visible) on mount — including when the server tells us this
@@ -75,6 +77,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
       setResult({ selectedIndex: selected, isCorrect: data.isCorrect, logsAwarded: data.logsAwarded });
       setJustAnswered(true);
       if (data.tierUp) setTierUp({ label: data.tierUp.label });
+      if (data.sparkChain) setSparkChain(data.sparkChain);
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -145,6 +148,12 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
             <div className="text-center font-medium text-emerald-300">
               Correct! +{result.logsAwarded} logs added to your bonfire.
             </div>
+            {justAnswered && sparkChain && (
+              <div className="flex items-center gap-1.5 rounded-full bg-gold-500/15 px-3 py-1 text-xs font-medium text-gold-300">
+                <Sparkles className="h-3.5 w-3.5" />
+                Spark chain with {sparkChain.friendName}! +{sparkChain.bonus} bonus log for you both.
+              </div>
+            )}
           </div>
         </div>
       ) : (

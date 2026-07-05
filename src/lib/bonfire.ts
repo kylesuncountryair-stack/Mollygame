@@ -205,3 +205,31 @@ export function endOfWeekCT(date = new Date()): Date {
 export function monthLabel(date = new Date()): string {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: TIME_ZONE });
 }
+
+// Returns the half-open UTC bounds (start inclusive, end exclusive) of the Central-time calendar month
+// that is `monthsAgo` months before `from` (0 = the current, still-live
+// month; 1 = last month; etc), plus a human label. This lets the monthly
+// history archive group LogTransactions by calendar month without needing
+// an explicit "month" column on the table.
+export function monthBoundsCT(monthsAgo: number, from = new Date()): { start: Date; end: Date; label: string } {
+  const { year, month } = getZonedParts(from, TIME_ZONE);
+  const totalMonths = year * 12 + (month - 1) - monthsAgo;
+  const targetYear = Math.floor(totalMonths / 12);
+  const targetMonth = (totalMonths % 12) + 1;
+  const start = zonedMidnightUTC(targetYear, targetMonth, 1, TIME_ZONE);
+  const nextTotal = totalMonths + 1;
+  const nextYear = Math.floor(nextTotal / 12);
+  const nextMonth = (nextTotal % 12) + 1;
+  const end = zonedMidnightUTC(nextYear, nextMonth, 1, TIME_ZONE);
+  const label = start.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: TIME_ZONE });
+  return { start, end, label };
+}
+
+// Central-time midnight `n` days before today. Used for the admin
+// participation chart's rolling window. Simple UTC-millisecond subtraction
+// is accurate here except right across a DST transition (off by an hour on
+// that one day) — an acceptable simplification for a recent-days chart.
+export function daysAgoCT(n: number, date = new Date()): Date {
+  const today = startOfTodayCT(date);
+  return new Date(today.getTime() - n * 24 * 60 * 60 * 1000);
+}

@@ -27,6 +27,7 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/leaderboard") ||
     pathname.startsWith("/profile") ||
+    pathname.startsWith("/history") ||
     pathname.startsWith("/admin");
   const isProtectedApi = pathname.startsWith("/api/") && !PUBLIC_PATHS.includes(pathname);
 

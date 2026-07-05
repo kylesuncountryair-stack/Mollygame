@@ -21,6 +21,7 @@ enum TransactionType {
   QUESTION_CORRECT
   ADMIN_GRANT
   ADMIN_ADJUST
+  SPARK_CHAIN
 }
 
 model User {
@@ -103,4 +104,22 @@ model Follow {
   following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
+}
+
+// Records that a "spark chain" bonus already fired between this pair of
+// players on this Central-time calendar day, so the check in
+// src/lib/sparkChain.ts doesn't hand out the bonus more than once per pair
+// per day. userAId/userBId are stored in sorted order (not
+// follower/following order) since the pair is unordered for this purpose —
+// no relation fields to User, kept as plain columns to avoid touching the
+// User model's relation lists for what's a lightweight, best-effort feature.
+model SparkChain {
+  id        String   @id @default(cuid())
+  userAId   String
+  userBId   String
+  dateKey   String
+  createdAt DateTime @default(now())
+
+  @@unique([userAId, userBId, dateKey])
+  @@index([dateKey])
 }

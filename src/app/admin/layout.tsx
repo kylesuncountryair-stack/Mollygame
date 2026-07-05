@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/session";
 import Navbar from "@/components/Navbar";
-import { LayoutGrid, HelpCircle, Users } from "lucide-react";
+import { LayoutGrid, HelpCircle, Users, BarChart3 } from "lucide-react";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAdmin();
@@ -19,6 +19,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </Link>
           <Link href="/admin/players" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ash-300 hover:bg-ash-900 hover:text-ash-100">
             <Users className="h-4 w-4" /> Players
+          </Link>
+          <Link href="/admin/reports" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ash-300 hover:bg-ash-900 hover:text-ash-100">
+            <BarChart3 className="h-4 w-4" /> Reports
           </Link>
         </aside>
         <main className="flex-1 space-y-6">{children}</main>
