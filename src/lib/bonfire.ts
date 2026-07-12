@@ -36,7 +36,7 @@ export const BONFIRE_TIERS: BonfireTier[] = [
   {
     key: "kindling",
     label: "Kindling",
-    min: 5,
+    min: 4,
     flameScale: 0.55,
     sideFlames: [],
     logCount: 2,
@@ -48,7 +48,7 @@ export const BONFIRE_TIERS: BonfireTier[] = [
   {
     key: "flame",
     label: "Flame",
-    min: 15,
+    min: 10,
     flameScale: 0.72,
     sideFlames: [],
     logCount: 3,
@@ -60,7 +60,7 @@ export const BONFIRE_TIERS: BonfireTier[] = [
   {
     key: "bonfire",
     label: "Bonfire",
-    min: 30,
+    min: 22,
     flameScale: 0.9,
     sideFlames: [{ dx: -24, scale: 0.42, rotate: -10, opacity: 0.85 }],
     logCount: 4,
@@ -72,7 +72,7 @@ export const BONFIRE_TIERS: BonfireTier[] = [
   {
     key: "blaze",
     label: "Blaze",
-    min: 60,
+    min: 36,
     flameScale: 1.08,
     sideFlames: [
       { dx: -30, scale: 0.48, rotate: -11, opacity: 0.85 },
@@ -87,7 +87,7 @@ export const BONFIRE_TIERS: BonfireTier[] = [
   {
     key: "wildfire",
     label: "Wildfire",
-    min: 100,
+    min: 50,
     flameScale: 1.3,
     sideFlames: [
       { dx: -34, scale: 0.58, rotate: -12, opacity: 0.9 },
