@@ -24,6 +24,7 @@ export default async function EditQuestionPage({ params }: { params: { id: strin
         initial={{
           id: question.id,
           type: question.type,
+          format: question.format,
           prompt: question.prompt,
           options: question.options as string[],
           correctIndex: question.correctIndex,

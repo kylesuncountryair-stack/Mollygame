@@ -7,13 +7,14 @@ import BonfireVisual from "@/components/BonfireVisual";
 import QuestionCard from "@/components/QuestionCard";
 import NearbyRank from "@/components/NearbyRank";
 import FriendsWidget from "@/components/FriendsWidget";
+import OnboardingTour from "@/components/OnboardingTour";
 import { Award, Flame, Trophy } from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await getCurrentSession();
   const userId = session!.sub;
 
-  const [dailyQ, weeklyQ, logSum, correctDailyAnswers, leaderboardRows] = await Promise.all([
+  const [dailyQ, weeklyQ, logSum, correctDailyAnswers, leaderboardRows, me] = await Promise.all([
     prisma.question.findFirst({
       where: { type: "DAILY", activeDate: { gte: startOfTodayCT(), lt: endOfTodayCT() } },
       orderBy: { createdAt: "desc" },
@@ -28,6 +29,7 @@ export default async function DashboardPage() {
       select: { question: { select: { activeDate: true } } },
     }),
     getLeaderboardRows(),
+    prisma.user.findUnique({ where: { id: userId }, select: { hasSeenOnboarding: true } }),
   ]);
 
   const ids = [dailyQ?.id, weeklyQ?.id].filter(Boolean) as string[];
@@ -38,6 +40,7 @@ export default async function DashboardPage() {
       ? {
           id: q.id,
           type: q.type,
+          format: q.format,
           prompt: q.prompt,
           options: q.options as string[],
           logsReward: q.logsReward,
@@ -57,6 +60,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <OnboardingTour initialSeen={me?.hasSeenOnboarding ?? true} />
       <div>
         <h1 className="font-display text-2xl font-bold text-ash-100">Welcome back, {session!.name.split(" ")[0]}</h1>
         <p className="text-ash-500">{monthLabel()} bonfire</p>

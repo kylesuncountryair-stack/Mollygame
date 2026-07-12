@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, CalendarRange, Check, Flame, HelpCircle, Sparkles, X } from "lucide-react";
+import { CalendarDays, CalendarRange, Check, Flame, HelpCircle, Sparkles, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import Badge from "./Badge";
 import Confetti from "./Confetti";
 import TierUpBanner from "./TierUpBanner";
@@ -14,6 +14,7 @@ type SparkChain = { friendName: string; bonus: number } | null;
 export type QuestionData = {
   id: string;
   type: "DAILY" | "WEEKLY";
+  format?: "MULTIPLE_CHOICE" | "TRUE_FALSE";
   prompt: string;
   options: string[];
   logsReward: number;
@@ -98,31 +99,63 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
 
       <p className="mb-5 font-display text-lg font-semibold text-ash-100">{question.prompt}</p>
 
-      <div className="space-y-2">
-        {question.options.map((opt, i) => {
-          const isSelected = (result ? result.selectedIndex : selected) === i;
-          const showCorrectness = !!result;
-          const isCorrectOption = i === result?.selectedIndex && result?.isCorrect;
-          const isWrongOption = i === result?.selectedIndex && result && !result.isCorrect;
+      {question.format === "TRUE_FALSE" ? (
+        <div className="grid grid-cols-2 gap-3">
+          {question.options.map((opt, i) => {
+            const isSelected = (result ? result.selectedIndex : selected) === i;
+            const showCorrectness = !!result;
+            const isCorrectOption = i === result?.selectedIndex && result?.isCorrect;
+            const isWrongOption = i === result?.selectedIndex && result && !result.isCorrect;
+            const Icon = i === 0 ? ThumbsUp : ThumbsDown;
 
-          return (
-            <button
-              key={i}
-              disabled={!!result || submitting}
-              onClick={() => setSelected(i)}
-              className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
-                isSelected
-                  ? "border-ember-500 bg-ember-500/10 text-ash-100"
-                  : "border-ash-800 bg-bg-panel text-ash-300 hover:border-ash-700"
-              } ${result ? "cursor-default" : "cursor-pointer"}`}
-            >
-              <span>{opt}</span>
-              {showCorrectness && isCorrectOption && <Check className="h-4 w-4 text-emerald-400" />}
-              {showCorrectness && isWrongOption && <X className="h-4 w-4 text-rose-400" />}
-            </button>
-          );
-        })}
-      </div>
+            return (
+              <button
+                key={i}
+                disabled={!!result || submitting}
+                onClick={() => setSelected(i)}
+                className={`flex flex-col items-center gap-2 rounded-xl border px-4 py-5 text-sm font-semibold transition-colors ${
+                  isSelected
+                    ? "border-ember-500 bg-ember-500/10 text-ash-100"
+                    : "border-ash-800 bg-bg-panel text-ash-300 hover:border-ash-700"
+                } ${result ? "cursor-default" : "cursor-pointer"}`}
+              >
+                <Icon className="h-5 w-5" />
+                <span className="flex items-center gap-1.5">
+                  {opt}
+                  {showCorrectness && isCorrectOption && <Check className="h-4 w-4 text-emerald-400" />}
+                  {showCorrectness && isWrongOption && <X className="h-4 w-4 text-rose-400" />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {question.options.map((opt, i) => {
+            const isSelected = (result ? result.selectedIndex : selected) === i;
+            const showCorrectness = !!result;
+            const isCorrectOption = i === result?.selectedIndex && result?.isCorrect;
+            const isWrongOption = i === result?.selectedIndex && result && !result.isCorrect;
+
+            return (
+              <button
+                key={i}
+                disabled={!!result || submitting}
+                onClick={() => setSelected(i)}
+                className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition-colors ${
+                  isSelected
+                    ? "border-ember-500 bg-ember-500/10 text-ash-100"
+                    : "border-ash-800 bg-bg-panel text-ash-300 hover:border-ash-700"
+                } ${result ? "cursor-default" : "cursor-pointer"}`}
+              >
+                <span>{opt}</span>
+                {showCorrectness && isCorrectOption && <Check className="h-4 w-4 text-emerald-400" />}
+                {showCorrectness && isWrongOption && <X className="h-4 w-4 text-rose-400" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {error && <p className="mt-3 text-sm text-rose-400">{error}</p>}
 

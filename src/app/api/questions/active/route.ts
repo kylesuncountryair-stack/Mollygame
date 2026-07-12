@@ -28,6 +28,7 @@ export async function GET() {
       ? {
           id: q.id,
           type: q.type,
+          format: q.format,
           prompt: q.prompt,
           options: q.options,
           logsReward: q.logsReward,

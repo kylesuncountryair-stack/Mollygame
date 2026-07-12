@@ -16,6 +16,7 @@ export default async function AdminQuestionsPage({
   const rows: AdminQuestion[] = questions.map((q) => ({
     id: q.id,
     type: q.type,
+    format: q.format,
     prompt: q.prompt,
     options: q.options as string[],
     correctIndex: q.correctIndex,

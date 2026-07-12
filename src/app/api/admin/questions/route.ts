@@ -12,16 +12,22 @@ export async function GET() {
 export async function POST(req: Request) {
   if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json().catch(() => null);
-  const { type, prompt, options, correctIndex, logsReward, activeDate } = body || {};
+  const { type, format, prompt, options, correctIndex, logsReward, activeDate } = body || {};
 
   if (!type || !["DAILY", "WEEKLY"].includes(type)) {
     return NextResponse.json({ error: "type must be DAILY or WEEKLY." }, { status: 400 });
+  }
+  if (format !== undefined && !["MULTIPLE_CHOICE", "TRUE_FALSE"].includes(format)) {
+    return NextResponse.json({ error: "format must be MULTIPLE_CHOICE or TRUE_FALSE." }, { status: 400 });
   }
   if (!prompt || typeof prompt !== "string") {
     return NextResponse.json({ error: "prompt is required." }, { status: 400 });
   }
   if (!Array.isArray(options) || options.length < 2 || options.some((o) => typeof o !== "string" || !o.trim())) {
     return NextResponse.json({ error: "options must be at least 2 non-empty strings." }, { status: 400 });
+  }
+  if (format === "TRUE_FALSE" && (options.length !== 2 || options[0] !== "True" || options[1] !== "False")) {
+    return NextResponse.json({ error: "True/False questions must have options exactly [\"True\", \"False\"]." }, { status: 400 });
   }
   if (typeof correctIndex !== "number" || correctIndex < 0 || correctIndex >= options.length) {
     return NextResponse.json({ error: "correctIndex must point to a valid option." }, { status: 400 });
@@ -36,6 +42,7 @@ export async function POST(req: Request) {
   const question = await prisma.question.create({
     data: {
       type,
+      format: format ?? "MULTIPLE_CHOICE",
       prompt,
       options,
       correctIndex,

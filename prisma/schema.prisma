@@ -17,6 +17,15 @@ enum QuestionType {
   WEEKLY
 }
 
+// Controls how a question is presented and answered. TRUE_FALSE questions
+// still use the same options/correctIndex columns as MULTIPLE_CHOICE (always
+// exactly ["True", "False"]) — this only changes the admin/player UI, not
+// the scoring logic in the answer API route.
+enum QuestionFormat {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+}
+
 enum TransactionType {
   QUESTION_CORRECT
   ADMIN_GRANT
@@ -38,6 +47,9 @@ model User {
   // nullable so existing accounts fall back to the old deterministic look.
   avatarColor  String?
   avatarIcon   String?
+  // One-time first-login walkthrough (tiers, streaks, spark chains, circles).
+  // Flips to true the first time the player dismisses/completes it.
+  hasSeenOnboarding Boolean @default(false)
 
   answers             Answer[]
   logTransactions     LogTransaction[] @relation("PlayerTransactions")
@@ -47,14 +59,15 @@ model User {
 }
 
 model Question {
-  id           String       @id @default(cuid())
+  id           String         @id @default(cuid())
   type         QuestionType
+  format       QuestionFormat @default(MULTIPLE_CHOICE)
   prompt       String
   options      Json
   correctIndex Int
-  logsReward   Int          @default(1)
+  logsReward   Int            @default(1)
   activeDate   DateTime
-  createdAt    DateTime     @default(now())
+  createdAt    DateTime       @default(now())
 
   answers Answer[]
 
