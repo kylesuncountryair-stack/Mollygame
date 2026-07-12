@@ -7,6 +7,7 @@ import Badge from "@/components/Badge";
 import {
   BarChart3,
   CheckCircle2,
+  Download,
   Flame,
   HelpCircle,
   History,
@@ -67,9 +68,18 @@ export default async function AdminReportsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-ash-100">Reports</h1>
-        <p className="text-ash-500">Participation, question performance, and past Bonfires.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-ash-100">Reports</h1>
+          <p className="text-ash-500">Participation, question performance, and past Bonfires.</p>
+        </div>
+        <a
+          href="/api/admin/players/export"
+          download
+          className="flex items-center gap-1.5 rounded-lg border border-ash-700 px-3 py-1.5 text-xs font-medium text-ash-200 hover:border-ember-500 hover:text-ember-200"
+        >
+          <Download className="h-3.5 w-3.5" /> Download CSV
+        </a>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
