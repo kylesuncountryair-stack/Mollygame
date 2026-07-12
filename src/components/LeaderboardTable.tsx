@@ -11,8 +11,7 @@ export type LeaderboardRow = {
   rank: number;
   name: string;
   role?: "PLAYER" | "ADMIN";
-  monthlyLogs: number;
-  allTimeLogs: number;
+  logs: number;
   tier: string;
   avatarColor?: string | null;
   avatarIcon?: string | null;
@@ -105,8 +104,7 @@ export default function LeaderboardTable({
                 <th className="px-5 py-3 font-medium">Rank</th>
                 <th className="px-5 py-3 font-medium">Player</th>
                 <th className="px-5 py-3 font-medium">Tier</th>
-                <th className="px-5 py-3 font-medium text-right">Logs this month</th>
-                <th className="px-5 py-3 font-medium text-right">All-time</th>
+                <th className="px-5 py-3 font-medium text-right">Logs</th>
                 {highlightId && <th className="px-5 py-3 font-medium text-right">Circle</th>}
               </tr>
             </thead>
@@ -137,10 +135,9 @@ export default function LeaderboardTable({
                 <td className="px-5 py-3 text-right font-semibold text-ember-400">
                   <span className="inline-flex items-center gap-1">
                     <Flame className="h-3.5 w-3.5" />
-                    {r.monthlyLogs}
+                    {r.logs}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-right text-ash-500">{r.allTimeLogs}</td>
                 {highlightId && (
                   <td className="px-5 py-3 text-right">
                     {!isSelf && (

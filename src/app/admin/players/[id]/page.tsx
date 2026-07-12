@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
+import { getTierForLogs } from "@/lib/bonfire";
 import Badge from "@/components/Badge";
 import Avatar from "@/components/Avatar";
 import StatCard from "@/components/StatCard";
@@ -17,7 +17,7 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
   });
   if (!player) notFound();
 
-  const [answers, transactions, allTimeSum, monthlySum] = await Promise.all([
+  const [answers, transactions, logSum] = await Promise.all([
     prisma.answer.findMany({ where: { userId: params.id }, include: { question: true }, orderBy: { answeredAt: "desc" } }),
     prisma.logTransaction.findMany({
       where: { userId: params.id },
@@ -25,13 +25,11 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
       orderBy: { createdAt: "desc" },
     }),
     prisma.logTransaction.aggregate({ where: { userId: params.id }, _sum: { amount: true } }),
-    prisma.logTransaction.aggregate({ where: { userId: params.id, createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
   ]);
 
   const correct = answers.filter((a) => a.isCorrect).length;
   const wrong = answers.length - correct;
-  const allTimeLogs = allTimeSum._sum.amount ?? 0;
-  const monthlyLogs = monthlySum._sum.amount ?? 0;
+  const logs = logSum._sum.amount ?? 0;
 
   return (
     <div className="space-y-8">
@@ -43,7 +41,7 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
         <div>
           <h1 className="font-display text-2xl font-bold text-ash-100">{player.name}</h1>
           <p className="text-ash-500">
-            {player.email} &middot; joined {new Date(player.createdAt).toLocaleDateString()} &middot; {getTierForLogs(monthlyLogs).label} tier
+            {player.email} &middot; joined {new Date(player.createdAt).toLocaleDateString()} &middot; {getTierForLogs(logs).label} tier
           </p>
         </div>
         <Badge tone={player.role === "ADMIN" ? "ember" : "neutral"}>{player.role}</Badge>
@@ -53,7 +51,7 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
         <StatCard icon={ListChecks} label="Answered" tone="navy" value={answers.length} />
         <StatCard icon={CheckCircle2} label="Correct" tone="success" value={correct} />
         <StatCard icon={XCircle} label="Wrong" tone="danger" value={wrong} />
-        <StatCard icon={Flame} label="Total logs" tone="ember" value={allTimeLogs} hint={`${monthlyLogs} this month`} />
+        <StatCard icon={Flame} label="Total logs" tone="ember" value={logs} />
       </div>
 
       <PlayerManageForm playerId={player.id} initialName={player.name} role={player.role} />

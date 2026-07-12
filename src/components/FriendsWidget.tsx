@@ -13,8 +13,7 @@ type FriendRow = {
   id: string;
   name: string;
   role: "PLAYER" | "ADMIN";
-  monthlyLogs: number;
-  allTimeLogs: number;
+  logs: number;
   tier: string;
   avatarColor?: string | null;
   avatarIcon?: string | null;
@@ -26,8 +25,7 @@ export default function FriendsWidget({
   me: {
     id: string;
     name: string;
-    monthlyLogs: number;
-    allTimeLogs: number;
+    logs: number;
     tier: string;
     avatarColor?: string | null;
     avatarIcon?: string | null;
@@ -59,7 +57,7 @@ export default function FriendsWidget({
   }
 
   const combined = [{ ...me, role: "PLAYER" as const, isMe: true }, ...(friends ?? []).map((f) => ({ ...f, isMe: false }))].sort(
-    (a, b) => b.monthlyLogs - a.monthlyLogs
+    (a, b) => b.logs - a.logs
   );
 
   return (
@@ -106,7 +104,7 @@ export default function FriendsWidget({
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1 text-sm font-semibold text-ember-400">
                   <Flame className="h-3.5 w-3.5" />
-                  {row.monthlyLogs}
+                  {row.logs}
                 </span>
                 {!row.isMe && (
                   <button

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
+import { getTierForLogs } from "@/lib/bonfire";
 import Avatar from "@/components/Avatar";
 import SectionHeader from "@/components/SectionHeader";
 import AdminPlayersTable from "@/components/admin/AdminPlayersTable";
-import { ShieldCheck } from "lucide-react";
+import { Download, ShieldCheck } from "lucide-react";
 
 export default async function AdminPlayersPage() {
   const [players, admins] = await Promise.all([
@@ -20,14 +20,12 @@ export default async function AdminPlayersPage() {
     }),
   ]);
 
-  const [answerCounts, allTimeSums, monthlySums] = await Promise.all([
+  const [answerCounts, logSums] = await Promise.all([
     prisma.answer.groupBy({ by: ["userId", "isCorrect"], _count: { _all: true } }),
     prisma.logTransaction.groupBy({ by: ["userId"], _sum: { amount: true } }),
-    prisma.logTransaction.groupBy({ by: ["userId"], where: { createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
   ]);
 
-  const allTimeMap = new Map(allTimeSums.map((s) => [s.userId, s._sum.amount ?? 0]));
-  const monthlyMap = new Map(monthlySums.map((s) => [s.userId, s._sum.amount ?? 0]));
+  const logsMap = new Map(logSums.map((s) => [s.userId, s._sum.amount ?? 0]));
   const correctMap = new Map<string, number>();
   const wrongMap = new Map<string, number>();
   for (const row of answerCounts) {
@@ -38,23 +36,31 @@ export default async function AdminPlayersPage() {
   const rows = players.map((p) => {
     const correct = correctMap.get(p.id) ?? 0;
     const wrong = wrongMap.get(p.id) ?? 0;
-    const monthlyLogs = monthlyMap.get(p.id) ?? 0;
+    const logs = logsMap.get(p.id) ?? 0;
     return {
       ...p,
       correct,
       wrong,
       answered: correct + wrong,
-      allTimeLogs: allTimeMap.get(p.id) ?? 0,
-      monthlyLogs,
-      tier: getTierForLogs(monthlyLogs).label,
+      logs,
+      tier: getTierForLogs(logs).label,
     };
   });
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-ash-100">Players</h1>
-        <p className="text-ash-500">Every player, their answers, and their logs.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-ash-100">Players</h1>
+          <p className="text-ash-500">Every player, their answers, and their logs.</p>
+        </div>
+        <a
+          href="/api/admin/players/export"
+          download
+          className="flex items-center gap-1.5 rounded-lg border border-ash-700 px-3 py-1.5 text-xs font-medium text-ash-200 hover:border-ember-500 hover:text-ember-200"
+        >
+          <Download className="h-3.5 w-3.5" /> Download CSV
+        </a>
       </div>
 
       <AdminPlayersTable rows={rows} />

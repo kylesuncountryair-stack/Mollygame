@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/session";
-import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
+import { getTierForLogs } from "@/lib/bonfire";
 import { tryTriggerSparkChain } from "@/lib/sparkChain";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
@@ -30,11 +30,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   // Snapshot the tier before this answer lands, so we can tell the client
   // whether this specific answer pushed the player into a new tier (for the
   // tier-up celebration banner).
-  const monthlySumBefore = await prisma.logTransaction.aggregate({
-    where: { userId: session.sub, createdAt: { gte: startOfMonthCT() } },
+  const logSumBefore = await prisma.logTransaction.aggregate({
+    where: { userId: session.sub },
     _sum: { amount: true },
   });
-  const logsBefore = monthlySumBefore._sum.amount ?? 0;
+  const logsBefore = logSumBefore._sum.amount ?? 0;
   const logsAfter = logsBefore + logsAwarded;
   const tierBefore = getTierForLogs(logsBefore);
   const tierAfter = getTierForLogs(logsAfter);

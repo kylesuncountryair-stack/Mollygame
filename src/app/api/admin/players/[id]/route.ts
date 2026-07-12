@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getTierForLogs, startOfMonthCT } from "@/lib/bonfire";
+import { getTierForLogs } from "@/lib/bonfire";
 import { getCurrentSession, requireAdminApi } from "@/lib/session";
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
@@ -11,7 +11,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   });
   if (!player) return NextResponse.json({ error: "Player not found." }, { status: 404 });
 
-  const [answers, transactions, allTimeSum, monthlySum] = await Promise.all([
+  const [answers, transactions, logSum] = await Promise.all([
     prisma.answer.findMany({
       where: { userId: params.id },
       include: { question: true },
@@ -23,20 +23,14 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       orderBy: { createdAt: "desc" },
     }),
     prisma.logTransaction.aggregate({ where: { userId: params.id }, _sum: { amount: true } }),
-    prisma.logTransaction.aggregate({
-      where: { userId: params.id, createdAt: { gte: startOfMonthCT() } },
-      _sum: { amount: true },
-    }),
   ]);
 
-  const allTimeLogs = allTimeSum._sum.amount ?? 0;
-  const monthlyLogs = monthlySum._sum.amount ?? 0;
+  const logs = logSum._sum.amount ?? 0;
 
   return NextResponse.json({
     player,
-    allTimeLogs,
-    monthlyLogs,
-    tier: getTierForLogs(monthlyLogs).label,
+    logs,
+    tier: getTierForLogs(logs).label,
     answers: answers.map((a) => ({
       id: a.id,
       prompt: a.question.prompt,

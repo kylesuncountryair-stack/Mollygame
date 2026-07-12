@@ -117,7 +117,6 @@ export default function QuestionForm({
             onChange={(e) => setActiveDate(e.target.value)}
             className="w-full rounded-lg border border-ash-800 bg-bg-panel px-3 py-2 text-sm text-ash-100"
           />
-          <p className="mt-1 text-[11px] text-ash-500">Dates here are Central time, matching when the question actually goes live.</p>
         </div>
       </div>
 

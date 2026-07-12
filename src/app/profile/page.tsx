@@ -1,6 +1,5 @@
 import { getCurrentSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { startOfMonthCT, getTierForLogs } from "@/lib/bonfire";
 import BonfireVisual from "@/components/BonfireVisual";
 import Badge from "@/components/Badge";
 import Avatar from "@/components/Avatar";
@@ -15,17 +14,15 @@ export default async function ProfilePage() {
   const session = await getCurrentSession();
   const userId = session!.sub;
 
-  const [answers, monthlySum, allTimeSum, me] = await Promise.all([
+  const [answers, logSum, me] = await Promise.all([
     prisma.answer.findMany({ where: { userId }, include: { question: true }, orderBy: { answeredAt: "desc" } }),
-    prisma.logTransaction.aggregate({ where: { userId, createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
     prisma.logTransaction.aggregate({ where: { userId }, _sum: { amount: true } }),
     prisma.user.findUnique({ where: { id: userId }, select: { avatarColor: true, avatarIcon: true } }),
   ]);
 
   const correct = answers.filter((a) => a.isCorrect).length;
   const wrong = answers.length - correct;
-  const monthlyLogs = monthlySum._sum.amount ?? 0;
-  const allTimeLogs = allTimeSum._sum.amount ?? 0;
+  const logs = logSum._sum.amount ?? 0;
 
   return (
     <div className="space-y-8">
@@ -45,7 +42,7 @@ export default async function ProfilePage() {
 
       <div className="grid gap-6 md:grid-cols-[auto,1fr]">
         <div className="flex items-center justify-center rounded-2xl border border-ash-900 bg-bg-card shadow-card p-8">
-          <BonfireVisual logs={monthlyLogs} size="sm" />
+          <BonfireVisual logs={logs} size="sm" />
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard icon={ListChecks} label="Answered" tone="navy" value={answers.length} />

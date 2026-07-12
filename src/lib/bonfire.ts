@@ -171,11 +171,6 @@ export function centralDateStringToUTC(dateStr: string): Date {
   return zonedMidnightUTC(year, month, day, TIME_ZONE);
 }
 
-export function startOfMonthCT(date = new Date()): Date {
-  const { year, month } = getZonedParts(date, TIME_ZONE);
-  return zonedMidnightUTC(year, month, 1, TIME_ZONE);
-}
-
 export function startOfTodayCT(date = new Date()): Date {
   const { year, month, day } = getZonedParts(date, TIME_ZONE);
   return zonedMidnightUTC(year, month, day, TIME_ZONE);

@@ -18,7 +18,7 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
         icon={Award}
         tone="gold"
         title="Your Rank"
-        subtitle={`#${rows[selfIndex].rank} of ${rows.length} this month`}
+        subtitle={`#${rows[selfIndex].rank} of ${rows.length}`}
         className="mb-4"
       />
       <div className="space-y-1.5">
@@ -42,7 +42,7 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
             </div>
             <span className="flex items-center gap-1 font-semibold text-ember-400">
               <Flame className="h-3.5 w-3.5" />
-              {row.monthlyLogs}
+              {row.logs}
             </span>
           </div>
         ))}

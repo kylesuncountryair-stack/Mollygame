@@ -13,17 +13,16 @@ export type AdminPlayerRow = {
   correct: number;
   wrong: number;
   tier: string;
-  monthlyLogs: number;
-  allTimeLogs: number;
+  logs: number;
   avatarColor?: string | null;
   avatarIcon?: string | null;
 };
 
-type SortKey = "name" | "answered" | "correct" | "wrong" | "monthlyLogs" | "allTimeLogs";
+type SortKey = "name" | "answered" | "correct" | "wrong" | "logs";
 
 export default function AdminPlayersTable({ rows }: { rows: AdminPlayerRow[] }) {
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("monthlyLogs");
+  const [sortKey, setSortKey] = useState<SortKey>("logs");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const filteredRows = useMemo(() => {
@@ -101,8 +100,7 @@ export default function AdminPlayersTable({ rows }: { rows: AdminPlayerRow[] }) 
                 <SortHeader label="Correct" sortableKey="correct" right />
                 <SortHeader label="Wrong" sortableKey="wrong" right />
                 <th className="px-5 py-3 font-medium">Tier</th>
-                <SortHeader label="Logs (month)" sortableKey="monthlyLogs" right />
-                <SortHeader label="Logs (all-time)" sortableKey="allTimeLogs" right />
+                <SortHeader label="Logs" sortableKey="logs" right />
               </tr>
             </thead>
             <tbody>
@@ -119,8 +117,7 @@ export default function AdminPlayersTable({ rows }: { rows: AdminPlayerRow[] }) 
                   <td className="px-5 py-3 text-right text-emerald-400">{r.correct}</td>
                   <td className="px-5 py-3 text-right text-rose-400">{r.wrong}</td>
                   <td className="px-5 py-3 text-ash-300">{r.tier}</td>
-                  <td className="px-5 py-3 text-right font-semibold text-ash-100">{r.monthlyLogs}</td>
-                  <td className="px-5 py-3 text-right text-ash-500">{r.allTimeLogs}</td>
+                  <td className="px-5 py-3 text-right font-semibold text-ash-100">{r.logs}</td>
                 </tr>
               ))}
             </tbody>

@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { startOfMonthCT, startOfTodayCT, endOfTodayCT, startOfWeekCT, endOfWeekCT, monthLabel } from "@/lib/bonfire";
+import { startOfTodayCT, endOfTodayCT, startOfWeekCT, endOfWeekCT, monthLabel } from "@/lib/bonfire";
 import { getLeaderboardRows } from "@/lib/leaderboard";
 import { computeStreak } from "@/lib/streak";
 import BonfireVisual from "@/components/BonfireVisual";
@@ -13,7 +13,7 @@ export default async function DashboardPage() {
   const session = await getCurrentSession();
   const userId = session!.sub;
 
-  const [dailyQ, weeklyQ, monthlySum, allTimeSum, correctDailyAnswers, leaderboardRows] = await Promise.all([
+  const [dailyQ, weeklyQ, logSum, correctDailyAnswers, leaderboardRows] = await Promise.all([
     prisma.question.findFirst({
       where: { type: "DAILY", activeDate: { gte: startOfTodayCT(), lt: endOfTodayCT() } },
       orderBy: { createdAt: "desc" },
@@ -22,7 +22,6 @@ export default async function DashboardPage() {
       where: { type: "WEEKLY", activeDate: { gte: startOfWeekCT(), lt: endOfWeekCT() } },
       orderBy: { createdAt: "desc" },
     }),
-    prisma.logTransaction.aggregate({ where: { userId, createdAt: { gte: startOfMonthCT() } }, _sum: { amount: true } }),
     prisma.logTransaction.aggregate({ where: { userId }, _sum: { amount: true } }),
     prisma.answer.findMany({
       where: { userId, isCorrect: true, question: { type: "DAILY" } },
@@ -52,8 +51,7 @@ export default async function DashboardPage() {
         }
       : null;
 
-  const monthlyLogs = monthlySum._sum.amount ?? 0;
-  const allTimeLogs = allTimeSum._sum.amount ?? 0;
+  const logs = logSum._sum.amount ?? 0;
   const streak = computeStreak(correctDailyAnswers.map((a) => a.question.activeDate));
   const selfRow = leaderboardRows.find((r) => r.id === userId);
 
@@ -67,7 +65,7 @@ export default async function DashboardPage() {
       <div className="grid gap-6 xl:grid-cols-[320px,1fr,1fr]">
         <div className="space-y-4">
           <div className="flex items-center justify-center rounded-2xl border border-ash-900 bg-bg-card shadow-card p-8">
-            <BonfireVisual logs={monthlyLogs} />
+            <BonfireVisual logs={logs} />
           </div>
 
           <div className="grid grid-cols-3 gap-2">
@@ -89,8 +87,8 @@ export default async function DashboardPage() {
               <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-navy-300/15">
                 <Trophy className="h-3.5 w-3.5 text-navy-300" />
               </span>
-              <div className="mt-1.5 font-display text-lg font-semibold text-white">{allTimeLogs}</div>
-              <div className="text-xs text-ash-500">all-time logs</div>
+              <div className="mt-1.5 font-display text-lg font-semibold text-white">{logs}</div>
+              <div className="text-xs text-ash-500">total logs</div>
             </div>
           </div>
         </div>
@@ -102,8 +100,7 @@ export default async function DashboardPage() {
               me={{
                 id: userId,
                 name: session!.name,
-                monthlyLogs: selfRow.monthlyLogs,
-                allTimeLogs: selfRow.allTimeLogs,
+                logs: selfRow.logs,
                 tier: selfRow.tier,
                 avatarColor: selfRow.avatarColor,
                 avatarIcon: selfRow.avatarIcon,
