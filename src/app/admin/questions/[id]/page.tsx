@@ -28,6 +28,7 @@ export default async function EditQuestionPage({ params }: { params: { id: strin
           prompt: question.prompt,
           options: question.options as string[],
           correctIndex: question.correctIndex,
+          explanation: question.explanation,
           logsReward: question.logsReward,
           activeDate: question.activeDate.toISOString(),
         }}

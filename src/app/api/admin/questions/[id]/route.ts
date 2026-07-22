@@ -6,7 +6,7 @@ import { centralDateStringToUTC } from "@/lib/bonfire";
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json().catch(() => null);
-  const { type, format, prompt, options, correctIndex, logsReward, activeDate } = body || {};
+  const { type, format, prompt, options, correctIndex, explanation, logsReward, activeDate } = body || {};
 
   const data: Record<string, unknown> = {};
   if (type) data.type = type;
@@ -14,6 +14,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (prompt) data.prompt = prompt;
   if (Array.isArray(options)) data.options = options;
   if (typeof correctIndex === "number") data.correctIndex = correctIndex;
+  if (explanation !== undefined) data.explanation = typeof explanation === "string" ? explanation || null : null;
   if (typeof logsReward === "number") data.logsReward = logsReward;
   if (activeDate) data.activeDate = centralDateStringToUTC(activeDate);
 

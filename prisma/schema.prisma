@@ -65,6 +65,11 @@ model Question {
   prompt       String
   options      Json
   correctIndex Int
+  // Optional admin-authored note shown to players who answer incorrectly,
+  // explaining why the correct option is right. Never sent to the client
+  // until after they've submitted an answer, so it can't be peeked at
+  // beforehand.
+  explanation  String?
   logsReward   Int            @default(1)
   activeDate   DateTime
   createdAt    DateTime       @default(now())

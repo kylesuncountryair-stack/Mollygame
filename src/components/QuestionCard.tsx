@@ -6,10 +6,12 @@ import { CalendarDays, CalendarRange, Check, Flame, HelpCircle, Sparkles, Thumbs
 import Badge from "./Badge";
 import Confetti from "./Confetti";
 import TierUpBanner from "./TierUpBanner";
+import WrongAnswerModal from "./WrongAnswerModal";
 
 type Answered = { selectedIndex: number; isCorrect: boolean; logsAwarded: number } | null;
 type TierUp = { label: string } | null;
 type SparkChain = { friendName: string; bonus: number } | null;
+type WrongAnswerInfo = { correctIndex: number; explanation: string | null } | null;
 
 export type QuestionData = {
   id: string;
@@ -33,6 +35,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   const [justAnswered, setJustAnswered] = useState(false);
   const [tierUp, setTierUp] = useState<TierUp>(null);
   const [sparkChain, setSparkChain] = useState<SparkChain>(null);
+  const [wrongAnswer, setWrongAnswer] = useState<WrongAnswerInfo>(null);
   // The correct/incorrect banner only shows right after a fresh submission
   // in this session, and fades out on its own after 30 seconds. It starts
   // hidden (not visible) on mount — including when the server tells us this
@@ -79,6 +82,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
       setJustAnswered(true);
       if (data.tierUp) setTierUp({ label: data.tierUp.label });
       if (data.sparkChain) setSparkChain(data.sparkChain);
+      if (!data.isCorrect) setWrongAnswer({ correctIndex: data.correctIndex, explanation: data.explanation ?? null });
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -200,6 +204,14 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
       )}
 
       {justAnswered && tierUp && <TierUpBanner tier={tierUp} onClose={() => setTierUp(null)} />}
+
+      {justAnswered && wrongAnswer && (
+        <WrongAnswerModal
+          correctAnswer={question.options[wrongAnswer.correctIndex]}
+          explanation={wrongAnswer.explanation}
+          onClose={() => setWrongAnswer(null)}
+        />
+      )}
     </div>
   );
 }

@@ -12,7 +12,7 @@ export async function GET() {
 export async function POST(req: Request) {
   if (!(await requireAdminApi())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await req.json().catch(() => null);
-  const { type, format, prompt, options, correctIndex, logsReward, activeDate } = body || {};
+  const { type, format, prompt, options, correctIndex, explanation, logsReward, activeDate } = body || {};
 
   if (!type || !["DAILY", "WEEKLY"].includes(type)) {
     return NextResponse.json({ error: "type must be DAILY or WEEKLY." }, { status: 400 });
@@ -38,6 +38,9 @@ export async function POST(req: Request) {
   if (!activeDate) {
     return NextResponse.json({ error: "activeDate is required." }, { status: 400 });
   }
+  if (explanation !== undefined && explanation !== null && typeof explanation !== "string") {
+    return NextResponse.json({ error: "explanation must be a string." }, { status: 400 });
+  }
 
   const question = await prisma.question.create({
     data: {
@@ -46,6 +49,7 @@ export async function POST(req: Request) {
       prompt,
       options,
       correctIndex,
+      explanation: explanation || null,
       logsReward,
       activeDate: centralDateStringToUTC(activeDate),
     },

@@ -71,6 +71,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     isCorrect,
     logsAwarded,
     correctIndex: question.correctIndex,
+    // Only meaningful (and only ever sent) after the player has submitted —
+    // withheld from the pre-answer question fetch so it can't be peeked at.
+    explanation: !isCorrect ? question.explanation : null,
     answerId: answer.id,
     tierUp,
     sparkChain,

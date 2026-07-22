@@ -11,6 +11,7 @@ export type QuestionFormValue = {
   prompt: string;
   options: string[];
   correctIndex: number;
+  explanation?: string | null;
   logsReward: number;
   activeDate: string; // yyyy-mm-dd
 };
@@ -42,6 +43,7 @@ export default function QuestionForm({
   const [prompt, setPrompt] = useState(initial?.prompt ?? "");
   const [options, setOptions] = useState<string[]>(initial?.options?.length ? initial.options : ["", ""]);
   const [correctIndex, setCorrectIndex] = useState(initial?.correctIndex ?? 0);
+  const [explanation, setExplanation] = useState(initial?.explanation ?? "");
   const [logsReward, setLogsReward] = useState(initial?.logsReward ?? 1);
   const [activeDate, setActiveDate] = useState(
     initial?.activeDate ? toDateInputValue(initial.activeDate) : initialActiveDate ?? toDateInputValue()
@@ -84,7 +86,7 @@ export default function QuestionForm({
     setError("");
     setLoading(true);
     try {
-      const payload = { type, format, prompt, options, correctIndex, logsReward, activeDate };
+      const payload = { type, format, prompt, options, correctIndex, explanation: explanation.trim() || null, logsReward, activeDate };
       const url = isEdit ? `/api/admin/questions/${initial!.id}` : "/api/admin/questions";
       const method = isEdit ? "PATCH" : "POST";
       const res = await fetch(url, {
@@ -102,6 +104,7 @@ export default function QuestionForm({
         setFormat("MULTIPLE_CHOICE");
         setOptions(["", ""]);
         setCorrectIndex(0);
+        setExplanation("");
         setLogsReward(1);
       }
       router.refresh();
@@ -219,6 +222,19 @@ export default function QuestionForm({
           )}
         </div>
       )}
+
+      <div>
+        <label className="mb-1 block text-xs font-medium text-ash-400">
+          Explanation <span className="font-normal text-ash-500">(optional — shown to players who answer wrong)</span>
+        </label>
+        <textarea
+          value={explanation}
+          onChange={(e) => setExplanation(e.target.value)}
+          rows={2}
+          placeholder="e.g. Sun Country's headquarters is in Minneapolis, not Eagan."
+          className="w-full rounded-lg border border-ash-800 bg-bg-panel px-3 py-2 text-sm text-ash-100"
+        />
+      </div>
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ash-400">Logs awarded for a correct answer</label>
