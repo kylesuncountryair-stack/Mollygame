@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Flame, Award, Sparkles, Users, X } from "lucide-react";
+import { Flame, Award, Gift, Sparkles, Users, X } from "lucide-react";
 
 type Step = {
   icon: typeof Flame;
@@ -28,6 +28,12 @@ const STEPS: Step[] = [
     tone: "ember",
     title: "Keep your streak alive",
     body: "Answering the daily question correctly, day after day, builds a streak shown right on your dashboard. Don't let it fizzle out.",
+  },
+  {
+    icon: Gift,
+    tone: "navy",
+    title: "Race for the bonus question",
+    body: "Whoever answers the daily question first each day unlocks a bonus question worth 3 extra logs, right there on the dashboard. Speed matters!",
   },
   {
     icon: Sparkles,

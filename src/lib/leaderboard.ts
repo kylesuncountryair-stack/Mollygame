@@ -20,7 +20,10 @@ export type LeaderboardRow = {
 // "all-time" total to track — every LogTransaction ever recorded for a
 // player counts toward their one running total.
 export async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
+  // Admins run the game rather than play it, so they're excluded from the
+  // leaderboard, rank, and everywhere else this shared list feeds into.
   const users = await prisma.user.findMany({
+    where: { role: "PLAYER" },
     select: { id: true, name: true, role: true, avatarColor: true, avatarIcon: true },
   });
 
