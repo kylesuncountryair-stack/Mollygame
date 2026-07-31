@@ -14,8 +14,8 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const { type, format, prompt, options, correctIndex, explanation, logsReward, activeDate } = body || {};
 
-  if (!type || !["DAILY", "WEEKLY"].includes(type)) {
-    return NextResponse.json({ error: "type must be DAILY or WEEKLY." }, { status: 400 });
+  if (!type || !["DAILY", "WEEKLY", "BONUS"].includes(type)) {
+    return NextResponse.json({ error: "type must be DAILY, WEEKLY, or BONUS." }, { status: 400 });
   }
   if (format !== undefined && !["MULTIPLE_CHOICE", "TRUE_FALSE"].includes(format)) {
     return NextResponse.json({ error: "format must be MULTIPLE_CHOICE or TRUE_FALSE." }, { status: 400 });
@@ -50,7 +50,9 @@ export async function POST(req: Request) {
       options,
       correctIndex,
       explanation: explanation || null,
-      logsReward,
+      // Bonus questions always award exactly 3 logs, regardless of what was
+      // submitted — enforced here too, not just in the admin form UI.
+      logsReward: type === "BONUS" ? 3 : logsReward,
       activeDate: centralDateStringToUTC(activeDate),
     },
   });

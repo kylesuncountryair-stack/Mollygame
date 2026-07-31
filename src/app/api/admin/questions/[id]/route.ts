@@ -9,7 +9,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const { type, format, prompt, options, correctIndex, explanation, logsReward, activeDate } = body || {};
 
   const data: Record<string, unknown> = {};
-  if (type) data.type = type;
+  if (type && ["DAILY", "WEEKLY", "BONUS"].includes(type)) data.type = type;
   if (format && ["MULTIPLE_CHOICE", "TRUE_FALSE"].includes(format)) data.format = format;
   if (prompt) data.prompt = prompt;
   if (Array.isArray(options)) data.options = options;
@@ -17,6 +17,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (explanation !== undefined) data.explanation = typeof explanation === "string" ? explanation || null : null;
   if (typeof logsReward === "number") data.logsReward = logsReward;
   if (activeDate) data.activeDate = centralDateStringToUTC(activeDate);
+  // Bonus questions always award exactly 3 logs, regardless of what was
+  // submitted — enforced here too, not just in the admin form UI.
+  if (data.type === "BONUS") data.logsReward = 3;
 
   const question = await prisma.question.update({ where: { id: params.id }, data });
   return NextResponse.json({ question });

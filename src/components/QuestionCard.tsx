@@ -2,20 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, CalendarRange, Check, Flame, HelpCircle, Sparkles, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import { CalendarDays, CalendarRange, Check, Flame, Gift, HelpCircle, Sparkles, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import Badge from "./Badge";
 import Confetti from "./Confetti";
 import TierUpBanner from "./TierUpBanner";
 import WrongAnswerModal from "./WrongAnswerModal";
+import StreakBonusModal from "./StreakBonusModal";
 
 type Answered = { selectedIndex: number; isCorrect: boolean; logsAwarded: number } | null;
 type TierUp = { label: string } | null;
 type SparkChain = { friendName: string; bonus: number } | null;
 type WrongAnswerInfo = { correctIndex: number; explanation: string | null } | null;
+type StreakBonus = { count: number; bonus: number } | null;
+type BonusUnlocked = { id: string; prompt: string } | null;
 
 export type QuestionData = {
   id: string;
-  type: "DAILY" | "WEEKLY";
+  type: "DAILY" | "WEEKLY" | "BONUS";
   format?: "MULTIPLE_CHOICE" | "TRUE_FALSE";
   prompt: string;
   options: string[];
@@ -36,6 +39,8 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   const [tierUp, setTierUp] = useState<TierUp>(null);
   const [sparkChain, setSparkChain] = useState<SparkChain>(null);
   const [wrongAnswer, setWrongAnswer] = useState<WrongAnswerInfo>(null);
+  const [streakBonus, setStreakBonus] = useState<StreakBonus>(null);
+  const [bonusUnlocked, setBonusUnlocked] = useState<BonusUnlocked>(null);
   // The correct/incorrect banner only shows right after a fresh submission
   // in this session, and fades out on its own after 30 seconds. It starts
   // hidden (not visible) on mount — including when the server tells us this
@@ -61,7 +66,12 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
     );
   }
 
-  const isWeekly = question.type === "WEEKLY";
+  const badgeConfig =
+    question.type === "WEEKLY"
+      ? { tone: "gold" as const, Icon: CalendarRange, label: "Weekly Question" }
+      : question.type === "BONUS"
+        ? { tone: "navy" as const, Icon: Gift, label: "Bonus Question" }
+        : { tone: "ember" as const, Icon: CalendarDays, label: "Daily Question" };
 
   async function submit() {
     if (selected === null) return;
@@ -83,6 +93,8 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
       if (data.tierUp) setTierUp({ label: data.tierUp.label });
       if (data.sparkChain) setSparkChain(data.sparkChain);
       if (!data.isCorrect) setWrongAnswer({ correctIndex: data.correctIndex, explanation: data.explanation ?? null });
+      if (data.streakBonus) setStreakBonus(data.streakBonus);
+      if (data.bonusUnlocked) setBonusUnlocked(data.bonusUnlocked);
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -92,9 +104,9 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   return (
     <div className="animate-rise rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
       <div className="mb-4 flex items-center justify-between">
-        <Badge tone={isWeekly ? "gold" : "ember"}>
-          {isWeekly ? <CalendarRange className="h-3 w-3" /> : <CalendarDays className="h-3 w-3" />}
-          {isWeekly ? "Weekly Question" : "Daily Question"}
+        <Badge tone={badgeConfig.tone}>
+          <badgeConfig.Icon className="h-3 w-3" />
+          {badgeConfig.label}
         </Badge>
         <span className="flex items-center gap-1 text-sm text-ember-300">
           <Flame className="h-4 w-4" /> +{question.logsReward} logs
@@ -203,7 +215,18 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
         </div>
       )}
 
+      {justAnswered && bonusUnlocked && (
+        <div className="mt-3 flex items-center justify-center gap-1.5 rounded-full bg-navy-300/15 px-3 py-1.5 text-center text-xs font-medium text-navy-200">
+          <Gift className="h-3.5 w-3.5" />
+          You were first today! A bonus question is now available below.
+        </div>
+      )}
+
       {justAnswered && tierUp && <TierUpBanner tier={tierUp} onClose={() => setTierUp(null)} />}
+
+      {justAnswered && !tierUp && streakBonus && (
+        <StreakBonusModal count={streakBonus.count} bonus={streakBonus.bonus} onClose={() => setStreakBonus(null)} />
+      )}
 
       {justAnswered && wrongAnswer && (
         <WrongAnswerModal

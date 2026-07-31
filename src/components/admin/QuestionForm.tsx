@@ -6,7 +6,7 @@ import { Plus, Trash2 } from "lucide-react";
 
 export type QuestionFormValue = {
   id?: string;
-  type: "DAILY" | "WEEKLY";
+  type: "DAILY" | "WEEKLY" | "BONUS";
   format?: "MULTIPLE_CHOICE" | "TRUE_FALSE";
   prompt: string;
   options: string[];
@@ -38,7 +38,7 @@ export default function QuestionForm({
   initialActiveDate?: string;
 }) {
   const router = useRouter();
-  const [type, setType] = useState<"DAILY" | "WEEKLY">(initial?.type ?? "DAILY");
+  const [type, setType] = useState<"DAILY" | "WEEKLY" | "BONUS">(initial?.type ?? "DAILY");
   const [format, setFormat] = useState<"MULTIPLE_CHOICE" | "TRUE_FALSE">(initial?.format ?? "MULTIPLE_CHOICE");
   const [prompt, setPrompt] = useState(initial?.prompt ?? "");
   const [options, setOptions] = useState<string[]>(initial?.options?.length ? initial.options : ["", ""]);
@@ -55,6 +55,13 @@ export default function QuestionForm({
 
   function updateOption(i: number, value: string) {
     setOptions((prev) => prev.map((o, idx) => (idx === i ? value : o)));
+  }
+
+  function changeType(next: "DAILY" | "WEEKLY" | "BONUS") {
+    if (next === type) return;
+    if (next === "BONUS") setLogsReward(3);
+    else if (type === "BONUS" && logsReward === 3) setLogsReward(1);
+    setType(next);
   }
 
   function changeFormat(next: "MULTIPLE_CHOICE" | "TRUE_FALSE") {
@@ -86,7 +93,16 @@ export default function QuestionForm({
     setError("");
     setLoading(true);
     try {
-      const payload = { type, format, prompt, options, correctIndex, explanation: explanation.trim() || null, logsReward, activeDate };
+      const payload = {
+        type,
+        format,
+        prompt,
+        options,
+        correctIndex,
+        explanation: explanation.trim() || null,
+        logsReward: type === "BONUS" ? 3 : logsReward,
+        activeDate,
+      };
       const url = isEdit ? `/api/admin/questions/${initial!.id}` : "/api/admin/questions";
       const method = isEdit ? "PATCH" : "POST";
       const res = await fetch(url, {
@@ -121,11 +137,12 @@ export default function QuestionForm({
           <label className="mb-1 block text-xs font-medium text-ash-400">Type</label>
           <select
             value={type}
-            onChange={(e) => setType(e.target.value as "DAILY" | "WEEKLY")}
+            onChange={(e) => changeType(e.target.value as "DAILY" | "WEEKLY" | "BONUS")}
             className="w-full rounded-lg border border-ash-800 bg-bg-panel px-3 py-2 text-sm text-ash-100"
           >
             <option value="DAILY">Daily</option>
             <option value="WEEKLY">Weekly</option>
+            <option value="BONUS">Bonus</option>
           </select>
         </div>
         <div>
@@ -141,7 +158,7 @@ export default function QuestionForm({
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-ash-400">
-            {type === "DAILY" ? "Active date" : "Active week (any day in that week)"}
+            {type === "WEEKLY" ? "Active week (any day in that week)" : "Active date"}
           </label>
           <input
             type="date"
@@ -151,6 +168,13 @@ export default function QuestionForm({
           />
         </div>
       </div>
+
+      {type === "BONUS" && (
+        <p className="rounded-lg border border-gold-500/30 bg-gold-500/10 px-3 py-2 text-xs text-gold-300">
+          Bonus questions are offered only to the first player who answers that day&apos;s active Daily question, and always
+          award 3 logs.
+        </p>
+      )}
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ash-400">Question prompt</label>
@@ -238,13 +262,17 @@ export default function QuestionForm({
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ash-400">Logs awarded for a correct answer</label>
-        <input
-          type="number"
-          min={0}
-          value={logsReward}
-          onChange={(e) => setLogsReward(Number(e.target.value))}
-          className="w-32 rounded-lg border border-ash-800 bg-bg-panel px-3 py-2 text-sm text-ash-100"
-        />
+        {type === "BONUS" ? (
+          <div className="w-32 rounded-lg border border-ash-800 bg-bg-panel px-3 py-2 text-sm text-ash-500">3 (fixed)</div>
+        ) : (
+          <input
+            type="number"
+            min={0}
+            value={logsReward}
+            onChange={(e) => setLogsReward(Number(e.target.value))}
+            className="w-32 rounded-lg border border-ash-800 bg-bg-panel px-3 py-2 text-sm text-ash-100"
+          />
+        )}
       </div>
 
       {error && <p className="text-sm text-rose-400">{error}</p>}

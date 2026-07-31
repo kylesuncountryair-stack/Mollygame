@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/session";
-import { getTierForLogs } from "@/lib/bonfire";
+import { getTierForLogs, startOfTodayCT, endOfTodayCT } from "@/lib/bonfire";
 import { tryTriggerSparkChain } from "@/lib/sparkChain";
+import { tryTriggerStreakBonus } from "@/lib/answerStreakBonus";
+import { BONUS_LOGS_REWARD, isEligibleForBonusQuestion, getTodaysUnlockedBonusQuestion } from "@/lib/bonusQuestion";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getCurrentSession();
@@ -24,8 +26,20 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: "You already answered this question." }, { status: 409 });
   }
 
+  // Bonus questions are only open to whoever was first (today) to answer the
+  // currently-active DAILY question — re-checked here server-side so it
+  // can't be bypassed by POSTing directly to a known bonus question id. Also
+  // confirms the bonus question itself is dated today, so a stale/known id
+  // from a past day can't be replayed.
+  if (question.type === "BONUS") {
+    const isToday = question.activeDate >= startOfTodayCT() && question.activeDate < endOfTodayCT();
+    if (!isToday || !(await isEligibleForBonusQuestion(session.sub))) {
+      return NextResponse.json({ error: "This bonus question isn't available to you." }, { status: 403 });
+    }
+  }
+
   const isCorrect = selectedIndex === question.correctIndex;
-  const logsAwarded = isCorrect ? question.logsReward : 0;
+  const logsAwarded = isCorrect ? (question.type === "BONUS" ? BONUS_LOGS_REWARD : question.logsReward) : 0;
 
   // Snapshot the tier before this answer lands, so we can tell the client
   // whether this specific answer pushed the player into a new tier (for the
@@ -66,6 +80,14 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   // Best-effort: a spark chain is a small bonus, not core game logic, so a
   // failure here shouldn't fail the answer submission itself.
   const sparkChain = isCorrect ? await tryTriggerSparkChain(session.sub).catch(() => null) : null;
+  const streakBonus = isCorrect ? await tryTriggerStreakBonus(session.sub).catch(() => null) : null;
+
+  // Whoever is first (today) to answer the DAILY question — correct or not
+  // — unlocks that day's bonus question, if one is scheduled. The bonus
+  // question itself only appears once the dashboard re-fetches; this just
+  // lets the daily card show an immediate "you unlocked it" note.
+  const bonusUnlocked =
+    question.type === "DAILY" ? await getTodaysUnlockedBonusQuestion(session.sub, question.id).catch(() => null) : null;
 
   return NextResponse.json({
     isCorrect,
@@ -77,5 +99,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     answerId: answer.id,
     tierUp,
     sparkChain,
+    streakBonus,
+    bonusUnlocked: bonusUnlocked ? { id: bonusUnlocked.id, prompt: bonusUnlocked.prompt } : null,
   });
 }

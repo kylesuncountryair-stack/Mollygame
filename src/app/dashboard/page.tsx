@@ -8,6 +8,7 @@ import QuestionCard from "@/components/QuestionCard";
 import NearbyRank from "@/components/NearbyRank";
 import FriendsWidget from "@/components/FriendsWidget";
 import OnboardingTour from "@/components/OnboardingTour";
+import { getTodaysUnlockedBonusQuestion } from "@/lib/bonusQuestion";
 import { Award, Flame, Trophy } from "lucide-react";
 
 export default async function DashboardPage() {
@@ -15,9 +16,13 @@ export default async function DashboardPage() {
   const userId = session!.sub;
 
   const [dailyQ, weeklyQ, logSum, correctDailyAnswers, leaderboardRows, me] = await Promise.all([
+    // Stays active until the next scheduled DAILY question's date arrives —
+    // not just questions dated exactly today. E.g. if the last DAILY
+    // question is dated Aug 3 and the next one is Aug 5, the Aug 3 question
+    // keeps showing through Aug 4.
     prisma.question.findFirst({
-      where: { type: "DAILY", activeDate: { gte: startOfTodayCT(), lt: endOfTodayCT() } },
-      orderBy: { createdAt: "desc" },
+      where: { type: "DAILY", activeDate: { lt: endOfTodayCT() } },
+      orderBy: [{ activeDate: "desc" }, { createdAt: "desc" }],
     }),
     prisma.question.findFirst({
       where: { type: "WEEKLY", activeDate: { gte: startOfWeekCT(), lt: endOfWeekCT() } },
@@ -32,7 +37,11 @@ export default async function DashboardPage() {
     prisma.user.findUnique({ where: { id: userId }, select: { hasSeenOnboarding: true } }),
   ]);
 
-  const ids = [dailyQ?.id, weeklyQ?.id].filter(Boolean) as string[];
+  // Only set when this user was first (today) to answer the active DAILY
+  // question and a BONUS question is scheduled for today.
+  const bonusQ = await getTodaysUnlockedBonusQuestion(userId, dailyQ?.id);
+
+  const ids = [dailyQ?.id, weeklyQ?.id, bonusQ?.id].filter(Boolean) as string[];
   const answers = ids.length ? await prisma.answer.findMany({ where: { userId, questionId: { in: ids } } }) : [];
 
   const attach = (q: typeof dailyQ) =>
@@ -114,6 +123,7 @@ export default async function DashboardPage() {
         </div>
 
         <div className="space-y-6">
+          {bonusQ && <QuestionCard question={attach(bonusQ)} />}
           <QuestionCard question={attach(dailyQ)} />
           <QuestionCard question={attach(weeklyQ)} />
         </div>

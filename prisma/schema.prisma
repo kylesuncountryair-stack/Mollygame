@@ -15,6 +15,11 @@ enum Role {
 enum QuestionType {
   DAILY
   WEEKLY
+  // A special one-off question, scheduled like a DAILY question, offered
+  // only to the first player who answers that day's active DAILY question.
+  // Always worth a fixed 3 logs regardless of its own logsReward value —
+  // enforced server-side in the answer API route.
+  BONUS
 }
 
 // Controls how a question is presented and answered. TRUE_FALSE questions
@@ -31,6 +36,7 @@ enum TransactionType {
   ADMIN_GRANT
   ADMIN_ADJUST
   SPARK_CHAIN
+  STREAK_BONUS
 }
 
 model User {

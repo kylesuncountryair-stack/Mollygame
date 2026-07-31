@@ -144,10 +144,14 @@ export default function QuestionCalendar({ questions }: { questions: AdminQuesti
                     href={`/admin/questions/${q.id}`}
                     title={q.prompt}
                     className={`truncate rounded px-1 py-0.5 text-[10px] font-medium leading-tight ${
-                      q.type === "WEEKLY" ? "bg-gold-500/20 text-gold-300" : "bg-ember-500/20 text-ember-300"
+                      q.type === "WEEKLY"
+                        ? "bg-gold-500/20 text-gold-300"
+                        : q.type === "BONUS"
+                          ? "bg-navy-300/20 text-navy-300"
+                          : "bg-ember-500/20 text-ember-300"
                     } hover:opacity-80`}
                   >
-                    {q.type === "WEEKLY" ? "Weekly" : "Daily"}
+                    {q.type === "WEEKLY" ? "Weekly" : q.type === "BONUS" ? "Bonus" : "Daily"}
                   </Link>
                 ))}
               </div>
@@ -162,6 +166,9 @@ export default function QuestionCalendar({ questions }: { questions: AdminQuesti
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-sm bg-gold-500/40" /> Weekly
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-sm bg-navy-300/40" /> Bonus
         </span>
         <span className="flex items-center gap-1.5">
           <Plus className="h-3 w-3" /> Click an empty day to prefill the form
