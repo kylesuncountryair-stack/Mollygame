@@ -8,6 +8,7 @@ import Confetti from "./Confetti";
 import TierUpBanner from "./TierUpBanner";
 import WrongAnswerModal from "./WrongAnswerModal";
 import StreakBonusModal from "./StreakBonusModal";
+import BonusUnlockedModal from "./BonusUnlockedModal";
 
 type Answered = { selectedIndex: number; isCorrect: boolean; logsAwarded: number } | null;
 type TierUp = { label: string } | null;
@@ -215,13 +216,6 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
         </div>
       )}
 
-      {justAnswered && bonusUnlocked && (
-        <div className="mt-3 flex items-center justify-center gap-1.5 rounded-full bg-navy-300/15 px-3 py-1.5 text-center text-xs font-medium text-navy-200">
-          <Gift className="h-3.5 w-3.5" />
-          You were first today! A bonus question is now available below.
-        </div>
-      )}
-
       {justAnswered && tierUp && <TierUpBanner tier={tierUp} onClose={() => setTierUp(null)} />}
 
       {justAnswered && !tierUp && streakBonus && (
@@ -234,6 +228,14 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
           explanation={wrongAnswer.explanation}
           onClose={() => setWrongAnswer(null)}
         />
+      )}
+
+      {/* Shown last so it doesn't overlap the tier-up/streak/wrong-answer
+          popups — bonusUnlocked can fire alongside any of those since it's
+          based on being first today, independent of whether this specific
+          answer was correct. */}
+      {justAnswered && !tierUp && !streakBonus && !wrongAnswer && bonusUnlocked && (
+        <BonusUnlockedModal onClose={() => setBonusUnlocked(null)} />
       )}
     </div>
   );

@@ -82,12 +82,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const sparkChain = isCorrect ? await tryTriggerSparkChain(session.sub).catch(() => null) : null;
   const streakBonus = isCorrect ? await tryTriggerStreakBonus(session.sub).catch(() => null) : null;
 
-  // Whoever is first (today) to answer the DAILY question — correct or not
-  // — unlocks that day's bonus question, if one is scheduled. The bonus
-  // question itself only appears once the dashboard re-fetches; this just
-  // lets the daily card show an immediate "you unlocked it" note.
+  // Whoever is first (today) to answer any of today's DAILY questions —
+  // correct or not — unlocks that day's bonus question, if one is
+  // scheduled. The bonus question itself only appears once the dashboard
+  // re-fetches; this just lets the daily card show an immediate "you
+  // unlocked it" note.
   const bonusUnlocked =
-    question.type === "DAILY" ? await getTodaysUnlockedBonusQuestion(session.sub, question.id).catch(() => null) : null;
+    question.type === "DAILY" ? await getTodaysUnlockedBonusQuestion(session.sub).catch(() => null) : null;
 
   return NextResponse.json({
     isCorrect,

@@ -1,29 +1,27 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/session";
-import { endOfTodayCT, startOfWeekCT, endOfWeekCT } from "@/lib/bonfire";
+import { startOfWeekCT, endOfWeekCT } from "@/lib/bonfire";
+import { getActiveDailyQuestions } from "@/lib/dailyQuestions";
 
 export async function GET() {
   const session = await getCurrentSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const [daily, weekly] = await Promise.all([
-    prisma.question.findFirst({
-      where: { type: "DAILY", activeDate: { lt: endOfTodayCT() } },
-      orderBy: [{ activeDate: "desc" }, { createdAt: "desc" }],
-    }),
+  const [dailyQuestions, weekly] = await Promise.all([
+    getActiveDailyQuestions(),
     prisma.question.findFirst({
       where: { type: "WEEKLY", activeDate: { gte: startOfWeekCT(), lt: endOfWeekCT() } },
       orderBy: { createdAt: "desc" },
     }),
   ]);
 
-  const ids = [daily?.id, weekly?.id].filter(Boolean) as string[];
+  const ids = [...dailyQuestions.map((q) => q.id), weekly?.id].filter(Boolean) as string[];
   const answers = ids.length
     ? await prisma.answer.findMany({ where: { userId: session.sub, questionId: { in: ids } } })
     : [];
 
-  const withAnswer = (q: typeof daily) =>
+  const withAnswer = (q: typeof weekly) =>
     q
       ? {
           id: q.id,
@@ -36,5 +34,5 @@ export async function GET() {
         }
       : null;
 
-  return NextResponse.json({ daily: withAnswer(daily), weekly: withAnswer(weekly) });
+  return NextResponse.json({ daily: dailyQuestions.map(withAnswer), weekly: withAnswer(weekly) });
 }
