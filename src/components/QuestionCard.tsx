@@ -50,6 +50,14 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   // dashboard tab. Once it's gone, it stays gone; the checkmark/x on the
   // selected option is enough of a reminder after that.
   const [bannerVisible, setBannerVisible] = useState(false);
+  // Answered questions shouldn't linger on the dashboard and clutter it up.
+  // `dismissed` starts true immediately (before first paint) for anything
+  // that was ALREADY answered when the page loaded — it just never
+  // appears, no animation needed. For a question answered fresh in this
+  // session, we let the celebration (banner/confetti/popups) play out
+  // first, then collapse and remove the card a few seconds later.
+  const [collapsing, setCollapsing] = useState(false);
+  const [dismissed, setDismissed] = useState(() => !!question?.answered);
 
   useEffect(() => {
     if (!justAnswered || !result) return;
@@ -57,6 +65,26 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
     const timer = setTimeout(() => setBannerVisible(false), 30000);
     return () => clearTimeout(timer);
   }, [justAnswered, result]);
+
+  // Once any freshly-triggered popups have all been closed (or never
+  // opened), give the player a few seconds to read the plain correct/wrong
+  // banner, then start collapsing the card away.
+  useEffect(() => {
+    if (!justAnswered || !result) return;
+    if (tierUp || streakBonus || wrongAnswer || bonusUnlocked) return;
+    const timer = setTimeout(() => setCollapsing(true), 3500);
+    return () => clearTimeout(timer);
+  }, [justAnswered, result, tierUp, streakBonus, wrongAnswer, bonusUnlocked]);
+
+  // Let the collapse transition finish playing before fully removing the
+  // card from the layout.
+  useEffect(() => {
+    if (!collapsing) return;
+    const timer = setTimeout(() => setDismissed(true), 500);
+    return () => clearTimeout(timer);
+  }, [collapsing]);
+
+  if (dismissed) return null;
 
   if (!question) {
     return (
@@ -103,6 +131,11 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   }
 
   return (
+    <div
+      className={`overflow-hidden transition-all duration-500 ease-out ${
+        collapsing ? "max-h-0 opacity-0" : "max-h-[2000px] opacity-100"
+      }`}
+    >
     <div className="animate-rise rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
       <div className="mb-4 flex items-center justify-between">
         <Badge tone={badgeConfig.tone}>
@@ -248,6 +281,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
       {justAnswered && !tierUp && !streakBonus && !wrongAnswer && bonusUnlocked && (
         <BonusUnlockedModal onClose={() => setBonusUnlocked(null)} />
       )}
+    </div>
     </div>
   );
 }
