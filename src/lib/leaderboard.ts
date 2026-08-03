@@ -24,11 +24,18 @@ export async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
   // leaderboard, rank, and everywhere else this shared list feeds into.
   const users = await prisma.user.findMany({
     where: { role: "PLAYER" },
-    select: { id: true, name: true, role: true, avatarColor: true, avatarIcon: true },
+    select: { id: true, name: true, role: true, avatarColor: true, avatarIcon: true, createdAt: true },
   });
 
-  const sums = await prisma.logTransaction.groupBy({ by: ["userId"], _sum: { amount: true } });
+  const sums = await prisma.logTransaction.groupBy({
+    by: ["userId"],
+    _sum: { amount: true },
+    // The most recent transaction's timestamp doubles as "when they reached
+    // their current total" — used below to break ties on equal logs.
+    _max: { createdAt: true },
+  });
   const logsMap = new Map(sums.map((m) => [m.userId, m._sum.amount ?? 0]));
+  const reachedAtMap = new Map(sums.map((m) => [m.userId, m._max.createdAt]));
 
   const rows = users
     .map((u) => {
@@ -42,9 +49,17 @@ export async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
         rank: 0,
         avatarColor: u.avatarColor,
         avatarIcon: u.avatarIcon,
+        // Falls back to join date for players with zero logs (no
+        // transactions yet) — only ever used as a tie-break, never shown.
+        reachedAt: reachedAtMap.get(u.id) ?? u.createdAt,
       };
     })
-    .sort((a, b) => b.logs - a.logs);
+    .sort((a, b) => {
+      if (b.logs !== a.logs) return b.logs - a.logs;
+      // Tied on logs — whoever got there first (earlier timestamp) ranks
+      // higher, same "earliest wins" principle used for spark chain pairing.
+      return a.reachedAt.getTime() - b.reachedAt.getTime();
+    });
 
-  return rows.map((r, i) => ({ ...r, rank: i + 1 }));
+  return rows.map(({ reachedAt, ...r }, i) => ({ ...r, rank: i + 1 }));
 }

@@ -109,9 +109,20 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
           <badgeConfig.Icon className="h-3 w-3" />
           {badgeConfig.label}
         </Badge>
-        <span className="flex items-center gap-1 text-sm text-ember-300">
-          <Flame className="h-4 w-4" /> +{question.logsReward} logs
-        </span>
+        {result ? (
+          <span
+            className={`flex items-center gap-1 text-sm font-medium ${
+              result.isCorrect ? "text-emerald-400" : "text-rose-400"
+            }`}
+          >
+            {result.isCorrect ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+            {result.isCorrect ? `Answered · +${result.logsAwarded} logs` : "Answered"}
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 text-sm text-ember-300">
+            <Flame className="h-4 w-4" /> +{question.logsReward} logs
+          </span>
+        )}
       </div>
 
       <p className="mb-5 font-display text-lg font-semibold text-ash-100">{question.prompt}</p>
