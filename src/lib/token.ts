@@ -5,7 +5,7 @@ export type SessionPayload = {
   sub: string;
   email: string;
   name: string;
-  role: "PLAYER" | "ADMIN";
+  role: "PLAYER" | "MANAGER" | "ADMIN";
   exp: number; // unix seconds
 };
 

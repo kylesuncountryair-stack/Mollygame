@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Flame, LayoutDashboard, Trophy, User, ShieldCheck, LogOut } from "lucide-react";
 
-export default function Navbar({ name, role }: { name: string; role: "PLAYER" | "ADMIN" }) {
+export default function Navbar({ name, role }: { name: string; role: "PLAYER" | "MANAGER" | "ADMIN" }) {
   const pathname = usePathname();
   const router = useRouter();
 

@@ -14,7 +14,7 @@ function getSecret(): string {
 }
 
 export async function createSessionCookie(
-  user: { id: string; email: string; name: string; role: "PLAYER" | "ADMIN" },
+  user: { id: string; email: string; name: string; role: "PLAYER" | "MANAGER" | "ADMIN" },
   remember: boolean = true
 ) {
   const duration = remember ? REMEMBER_ME_SECONDS : DEFAULT_SECONDS;

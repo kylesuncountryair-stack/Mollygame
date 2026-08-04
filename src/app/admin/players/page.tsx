@@ -4,12 +4,17 @@ import { getTierForLogs } from "@/lib/bonfire";
 import Avatar from "@/components/Avatar";
 import SectionHeader from "@/components/SectionHeader";
 import AdminPlayersTable from "@/components/admin/AdminPlayersTable";
-import { Download, ShieldCheck } from "lucide-react";
+import { Download, ShieldCheck, UserCog } from "lucide-react";
 
 export default async function AdminPlayersPage() {
-  const [players, admins] = await Promise.all([
+  const [players, managers, admins] = await Promise.all([
     prisma.user.findMany({
       where: { role: "PLAYER" },
+      select: { id: true, name: true, email: true, createdAt: true, avatarColor: true, avatarIcon: true },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.user.findMany({
+      where: { role: "MANAGER" },
       select: { id: true, name: true, email: true, createdAt: true, avatarColor: true, avatarIcon: true },
       orderBy: { createdAt: "asc" },
     }),
@@ -64,6 +69,43 @@ export default async function AdminPlayersPage() {
       </div>
 
       <AdminPlayersTable rows={rows} />
+
+      {managers.length > 0 && (
+        <div>
+          <SectionHeader
+            icon={UserCog}
+            tone="gold"
+            title="Managers"
+            subtitle="Can play, but excluded from the leaderboard and can't access the admin console."
+            className="mb-4"
+          />
+          <div className="overflow-x-auto rounded-2xl border border-ash-900 bg-bg-card shadow-card">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-bg-panel text-ash-500">
+                <tr>
+                  <th className="px-5 py-3 font-medium">Name</th>
+                  <th className="px-5 py-3 font-medium">Email</th>
+                  <th className="px-5 py-3 font-medium text-right">Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                {managers.map((m) => (
+                  <tr key={m.id} className="border-t border-ash-900 hover:bg-ash-900/40">
+                    <td className="px-5 py-3">
+                      <Link href={`/admin/players/${m.id}`} className="flex items-center gap-2.5 font-medium text-ember-300 hover:underline">
+                        <Avatar id={m.id} name={m.name} avatarColor={m.avatarColor} avatarIcon={m.avatarIcon} />
+                        {m.name}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3 text-ash-500">{m.email}</td>
+                    <td className="px-5 py-3 text-right text-ash-500">{new Date(m.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {admins.length > 0 && (
         <div>

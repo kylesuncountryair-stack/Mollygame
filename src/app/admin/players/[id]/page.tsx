@@ -44,7 +44,9 @@ export default async function AdminPlayerDetailPage({ params }: { params: { id: 
             {player.email} &middot; joined {new Date(player.createdAt).toLocaleDateString()} &middot; {getTierForLogs(logs).label} tier
           </p>
         </div>
-        <Badge tone={player.role === "ADMIN" ? "ember" : "neutral"}>{player.role}</Badge>
+        <Badge tone={player.role === "ADMIN" ? "ember" : player.role === "MANAGER" ? "gold" : "neutral"}>
+          {player.role}
+        </Badge>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

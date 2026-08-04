@@ -5,6 +5,26 @@ import { useRouter } from "next/navigation";
 import { Copy, KeyRound, Save, ShieldCheck, ShieldOff, Trash2, UserCog } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
 
+type Role = "PLAYER" | "MANAGER" | "ADMIN";
+
+// What each role can be changed to, and how that action should read/look
+// in the UI. Kept as an ordered list (rather than a single toggle) now that
+// there are three tiers instead of two.
+const ROLE_ACTIONS: Record<Role, { to: Role; label: string; icon: typeof ShieldCheck }[]> = {
+  PLAYER: [
+    { to: "MANAGER", label: "Promote to Manager", icon: UserCog },
+    { to: "ADMIN", label: "Promote to Admin", icon: ShieldCheck },
+  ],
+  MANAGER: [
+    { to: "PLAYER", label: "Demote to Player", icon: ShieldOff },
+    { to: "ADMIN", label: "Promote to Admin", icon: ShieldCheck },
+  ],
+  ADMIN: [
+    { to: "MANAGER", label: "Demote to Manager", icon: UserCog },
+    { to: "PLAYER", label: "Demote to Player", icon: ShieldOff },
+  ],
+};
+
 export default function PlayerManageForm({
   playerId,
   initialName,
@@ -12,7 +32,7 @@ export default function PlayerManageForm({
 }: {
   playerId: string;
   initialName: string;
-  role: "PLAYER" | "ADMIN";
+  role: Role;
 }) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
@@ -47,12 +67,11 @@ export default function PlayerManageForm({
     }
   }
 
-  async function toggleRole() {
+  async function changeRole(nextRole: Role) {
     setError("");
     setSuccess("");
     setTogglingRole(true);
     try {
-      const nextRole = role === "ADMIN" ? "PLAYER" : "ADMIN";
       const res = await fetch(`/api/admin/players/${playerId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -161,14 +180,17 @@ export default function PlayerManageForm({
         >
           <KeyRound className="h-4 w-4" /> Reset Password
         </button>
-        <button
-          onClick={toggleRole}
-          disabled={togglingRole}
-          className="flex items-center gap-1.5 rounded-lg border border-ash-700 px-4 py-2 text-sm font-medium text-ash-200 hover:border-ember-500 hover:text-ember-200 disabled:opacity-50"
-        >
-          {role === "ADMIN" ? <ShieldOff className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
-          {role === "ADMIN" ? "Demote to Player" : "Promote to Admin"}
-        </button>
+        {ROLE_ACTIONS[role].map((action) => (
+          <button
+            key={action.to}
+            onClick={() => changeRole(action.to)}
+            disabled={togglingRole}
+            className="flex items-center gap-1.5 rounded-lg border border-ash-700 px-4 py-2 text-sm font-medium text-ash-200 hover:border-ember-500 hover:text-ember-200 disabled:opacity-50"
+          >
+            <action.icon className="h-4 w-4" />
+            {action.label}
+          </button>
+        ))}
         <button
           onClick={deletePlayer}
           disabled={deleting}

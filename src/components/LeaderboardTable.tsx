@@ -10,7 +10,7 @@ export type LeaderboardRow = {
   id: string;
   rank: number;
   name: string;
-  role?: "PLAYER" | "ADMIN";
+  role?: "PLAYER" | "MANAGER" | "ADMIN";
   logs: number;
   tier: string;
   avatarColor?: string | null;

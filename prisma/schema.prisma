@@ -9,6 +9,12 @@ datasource db {
 
 enum Role {
   PLAYER
+  // Can sign in and play like a regular player, but has no admin access and
+  // is excluded from the leaderboard/rankings — for team leads or coaches
+  // who shouldn't be competing for logs. Only reachable by an admin
+  // promoting an existing player from the admin console; nobody signs up
+  // as a MANAGER directly.
+  MANAGER
   ADMIN
 }
 

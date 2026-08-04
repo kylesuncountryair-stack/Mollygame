@@ -4,7 +4,7 @@ import { getTierForLogs } from "@/lib/bonfire";
 export type LeaderboardRow = {
   id: string;
   name: string;
-  role: "PLAYER" | "ADMIN";
+  role: "PLAYER" | "MANAGER" | "ADMIN";
   logs: number;
   tier: string;
   rank: number;
@@ -20,8 +20,10 @@ export type LeaderboardRow = {
 // "all-time" total to track — every LogTransaction ever recorded for a
 // player counts toward their one running total.
 export async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
-  // Admins run the game rather than play it, so they're excluded from the
-  // leaderboard, rank, and everywhere else this shared list feeds into.
+  // Admins run the game rather than play it, and managers (promoted from
+  // the admin console) are excluded from competing too — both are left out
+  // of the leaderboard, rank, and everywhere else this shared list feeds
+  // into, by only ever selecting role: PLAYER here.
   const users = await prisma.user.findMany({
     where: { role: "PLAYER" },
     select: { id: true, name: true, role: true, avatarColor: true, avatarIcon: true, createdAt: true },

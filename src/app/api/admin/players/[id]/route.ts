@@ -66,8 +66,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   if (role !== undefined) {
-    if (role !== "PLAYER" && role !== "ADMIN") {
-      return NextResponse.json({ error: "role must be PLAYER or ADMIN." }, { status: 400 });
+    if (role !== "PLAYER" && role !== "MANAGER" && role !== "ADMIN") {
+      return NextResponse.json({ error: "role must be PLAYER, MANAGER, or ADMIN." }, { status: 400 });
     }
     const session = await getCurrentSession();
     if (session?.sub === params.id && role !== "ADMIN") {

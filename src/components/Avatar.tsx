@@ -5,14 +5,24 @@
 // anyone who hasn't picked yet falls back to the original deterministic
 // hash-based color + initials so nothing looks broken for existing accounts.
 import {
+  Anchor,
+  Award,
   Compass,
   Crown,
+  Feather,
   Flame,
   Gem,
+  Globe,
   Heart,
+  Medal,
+  Moon,
   Plane,
   Rocket,
+  Shield,
+  Sparkles,
   Star,
+  Sun,
+  Target,
   Trophy,
   Zap,
   type LucideIcon,
@@ -27,13 +37,23 @@ export const AVATAR_COLOR_PALETTE: Record<string, { bg: string; text: string; la
   teal: { bg: "#0d2a30", text: "#7fd8e8", label: "Teal" },
   rose: { bg: "#3a1020", text: "#ff9ec2", label: "Rose" },
   sky: { bg: "#0d2438", text: "#7ec8ff", label: "Sky" },
+  // Added later, alongside the wider icon set — kept distinct from the hues
+  // above rather than just being lighter/darker variants of them.
+  lime: { bg: "#1e2a0c", text: "#d4f542", label: "Lime" },
+  indigo: { bg: "#1a1440", text: "#b3a1ff", label: "Indigo" },
+  crimson: { bg: "#3a0f18", text: "#ff6b81", label: "Crimson" },
+  slate: { bg: "#202836", text: "#b8c4d9", label: "Slate" },
+  coral: { bg: "#3a1f10", text: "#ff9166", label: "Coral" },
+  mint: { bg: "#0d2a22", text: "#6ef0c2", label: "Mint" },
+  amber: { bg: "#33260a", text: "#ffcb47", label: "Amber" },
+  fuchsia: { bg: "#300f30", text: "#f291f2", label: "Fuchsia" },
 };
 
 const AVATAR_COLOR_KEYS = Object.keys(AVATAR_COLOR_PALETTE);
 
-// The 10 icon choices, plus "letter" and "initials" are handled separately
-// as text-based glyphs (see renderGlyph below). Picked to feel game-y and
-// on-brand for an airline: a mix of flight, achievement, and fun symbols.
+// Picked to feel game-y and on-brand for an airline: a mix of flight,
+// achievement, and fun symbols. "letter" and "initials" are handled
+// separately as text-based glyphs (see renderGlyph below).
 export const AVATAR_ICON_OPTIONS: { key: string; label: string; Icon: LucideIcon }[] = [
   { key: "flame", label: "Flame", Icon: Flame },
   { key: "plane", label: "Plane", Icon: Plane },
@@ -45,6 +65,17 @@ export const AVATAR_ICON_OPTIONS: { key: string; label: string; Icon: LucideIcon
   { key: "heart", label: "Heart", Icon: Heart },
   { key: "compass", label: "Compass", Icon: Compass },
   { key: "gem", label: "Gem", Icon: Gem },
+  // Added later, alongside the wider color palette.
+  { key: "sparkles", label: "Sparkles", Icon: Sparkles },
+  { key: "target", label: "Target", Icon: Target },
+  { key: "medal", label: "Medal", Icon: Medal },
+  { key: "award", label: "Award", Icon: Award },
+  { key: "globe", label: "Globe", Icon: Globe },
+  { key: "anchor", label: "Anchor", Icon: Anchor },
+  { key: "shield", label: "Shield", Icon: Shield },
+  { key: "feather", label: "Feather", Icon: Feather },
+  { key: "sun", label: "Sun", Icon: Sun },
+  { key: "moon", label: "Moon", Icon: Moon },
 ];
 
 const AVATAR_ICON_MAP: Record<string, LucideIcon> = Object.fromEntries(

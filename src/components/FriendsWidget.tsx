@@ -12,7 +12,7 @@ import SectionHeader from "@/components/SectionHeader";
 type FriendRow = {
   id: string;
   name: string;
-  role: "PLAYER" | "ADMIN";
+  role: "PLAYER" | "MANAGER" | "ADMIN";
   logs: number;
   tier: string;
   avatarColor?: string | null;
