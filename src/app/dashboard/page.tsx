@@ -16,7 +16,7 @@ export default async function DashboardPage() {
   const session = await getCurrentSession();
   const userId = session!.sub;
 
-  const [dailyQuestions, weeklyQ, logSum, correctDailyAnswers, leaderboardRows, me] = await Promise.all([
+  const [dailyQuestions, weeklyQ, logSum, correctDailyAnswers, scheduledDailyDates, leaderboardRows, me] = await Promise.all([
     // All DAILY questions sharing the most recent scheduled date that isn't
     // in the future — stays active (as a set) until the next scheduled
     // date's questions arrive. E.g. if the last DAILY questions are dated
@@ -31,6 +31,14 @@ export default async function DashboardPage() {
     prisma.answer.findMany({
       where: { userId, isCorrect: true, question: { type: "DAILY" } },
       select: { question: { select: { activeDate: true } } },
+    }),
+    // Every distinct calendar day that has ever had a DAILY question — the
+    // day streak below walks through these (not raw calendar days), since
+    // daily questions only run a few days a week rather than every day.
+    prisma.question.findMany({
+      where: { type: "DAILY" },
+      select: { activeDate: true },
+      distinct: ["activeDate"],
     }),
     getLeaderboardRows(),
     prisma.user.findUnique({ where: { id: userId }, select: { hasSeenOnboarding: true } }),
@@ -63,7 +71,10 @@ export default async function DashboardPage() {
       : null;
 
   const logs = logSum._sum.amount ?? 0;
-  const streak = computeStreak(correctDailyAnswers.map((a) => a.question.activeDate));
+  const streak = computeStreak(
+    scheduledDailyDates.map((q) => q.activeDate),
+    correctDailyAnswers.map((a) => a.question.activeDate)
+  );
   const selfRow = leaderboardRows.find((r) => r.id === userId);
 
   return (

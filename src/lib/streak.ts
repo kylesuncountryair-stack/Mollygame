@@ -4,29 +4,41 @@ function dateKey(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-function addDaysUTC(d: Date, days: number): Date {
-  const copy = new Date(d);
-  copy.setUTCDate(copy.getUTCDate() + days);
-  return copy;
-}
+// Consecutive-SCHEDULED-day streak of correctly-answered DAILY questions,
+// based on each question's calendar day (activeDate), not the exact time it
+// was answered.
+//
+// Daily questions aren't scheduled every single calendar day (there might
+// be a handful a week, with gaps in between), so the streak walks backward
+// through the distinct days that actually HAD a daily question, skipping
+// over the days with no question at all, rather than requiring every raw
+// calendar day in a row to have one. E.g. if questions only ever run
+// Mon/Wed/Fri and a player answers all three correctly, that's a 3-day
+// streak — the Tue/Thu gaps don't count against them.
+//
+// The most recently scheduled day gets a grace period if it hasn't been
+// answered correctly yet: it doesn't break an existing streak, since (a) a
+// daily question stays open/answerable until the next one is scheduled
+// (see getActiveDailyQuestions), and (b) if it IS today's question, there's
+// still time left today to answer it (Duolingo-style grace period).
+export function computeStreak(scheduledDailyDates: Date[], correctDailyDates: Date[], today = new Date()): number {
+  const todayKey = dateKey(startOfTodayCT(today));
 
-// Consecutive-day streak of correctly-answered DAILY questions, based on the
-// question's calendar day (activeDate), not the exact time it was answered.
-// If today's daily question hasn't been answered correctly yet, that's not
-// treated as "broken" — the streak still counts through yesterday, since
-// there's still time today to extend it (Duolingo-style grace period).
-export function computeStreak(correctDailyActiveDates: Date[], today = new Date()): number {
-  const dates = new Set(correctDailyActiveDates.map((d) => dateKey(d)));
+  const scheduledKeys = [...new Set(scheduledDailyDates.map(dateKey))]
+    .filter((k) => k <= todayKey)
+    .sort()
+    .reverse(); // most recent first
+  if (scheduledKeys.length === 0) return 0;
 
-  let cursor = startOfTodayCT(today);
-  if (!dates.has(dateKey(cursor))) {
-    cursor = addDaysUTC(cursor, -1);
-  }
+  const correctKeys = new Set(correctDailyDates.map(dateKey));
+
+  let idx = 0;
+  if (!correctKeys.has(scheduledKeys[0])) idx = 1; // grace period on the most recent scheduled day
 
   let streak = 0;
-  while (dates.has(dateKey(cursor))) {
+  for (; idx < scheduledKeys.length; idx++) {
+    if (!correctKeys.has(scheduledKeys[idx])) break;
     streak++;
-    cursor = addDaysUTC(cursor, -1);
   }
   return streak;
 }
