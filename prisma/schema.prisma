@@ -137,9 +137,9 @@ model Follow {
 }
 
 // Records that a "spark chain" bonus already fired between this pair of
-// players on this Central-time calendar day, so the check in
+// players for this round of questions, so the check in
 // src/lib/sparkChain.ts doesn't hand out the bonus more than once per pair
-// per day. userAId/userBId are stored in sorted order (not
+// per round. userAId/userBId are stored in sorted order (not
 // follower/following order) since the pair is unordered for this purpose —
 // no relation fields to User, kept as plain columns to avoid touching the
 // User model's relation lists for what's a lightweight, best-effort feature.
@@ -148,20 +148,28 @@ model SparkChain {
   userAId   String
   userBId   String
   // Legacy: sparks used to be matched on "answered something correctly the
-  // same day" (Central time). Kept nullable so old rows created under that
-  // system stay intact for history; no longer set on new rows.
-  dateKey   String?
-  // Sparks are now matched on both people answering this SAME question
-  // correctly, rather than just the same calendar day — daily questions
-  // aren't scheduled every day, so two coworkers can easily land on the
-  // same question a day or two apart (see getActiveDailyQuestions' carry-
-  // forward behavior) and should still spark. Required on every row created
-  // going forward; null only on legacy day-based rows from before the
-  // switch.
+  // same day" (Central time), then briefly on "answered this exact
+  // question" (which let one round with several questions — e.g. 2 dailies
+  // + a bonus — spark repeatedly). Kept nullable so old rows from either of
+  // those systems stay intact for history; no longer set on new rows.
+  dateKey    String?
   questionId String?
+  // Sparks are now matched on the ROUND of questions, keyed by the
+  // question's scheduled activeDate rather than the exact question or the
+  // day it was actually answered. This gets both halves of the original
+  // problem right: (a) daily questions aren't scheduled every day and stay
+  // answerable for a while after (see getActiveDailyQuestions' carry-
+  // forward behavior), so two coworkers can land on the same round a day or
+  // two apart and should still spark, and (b) a round can include more than
+  // one question (multiple dailies, or a daily plus that day's bonus), and
+  // all of those share one round — so it's still just one spark, not one
+  // per question. Required on every row created going forward; null only
+  // on legacy rows from before this switch.
+  roundDate DateTime?
   createdAt DateTime @default(now())
 
-  @@unique([userAId, userBId, questionId])
+  @@unique([userAId, userBId, roundDate])
+  @@index([roundDate])
   @@index([questionId])
   @@index([dateKey])
 }

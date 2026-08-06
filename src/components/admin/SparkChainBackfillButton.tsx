@@ -5,18 +5,31 @@ import { useRouter } from "next/navigation";
 import { Sparkles } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
 
-// One-time (but safe to re-run) admin action after switching spark chains
-// from "answered something correctly the same day" to "answered this SAME
-// question correctly." Replays answer history through the new rule and
-// awards any sparks that would have happened under it but didn't — safe to
-// click more than once, it won't double-award anything already sparked.
+type Result = { removedSparkChains: number; removedLogTransactions: number; checked: number; created: number };
+
+// One-time (but safe to re-run) admin action to reconcile spark chains
+// against the current round-based rule (both people answering correctly
+// somewhere in the same round of questions, capped at one spark per pair
+// per round). Wipes existing spark chain history — SparkChain rows and
+// SPARK_CHAIN-type log transactions only, nothing else — and rebuilds it
+// from scratch by replaying answer history through the current logic.
+// This also claws back any excess logs an earlier, short-lived version of
+// this feature handed out by sparking once per question instead of once
+// per round. Safe to run more than once: it always lands on the same
+// correct end state.
 export default function SparkChainBackfillButton() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<{ checked: number; created: number } | null>(null);
+  const [result, setResult] = useState<Result | null>(null);
 
   async function run() {
+    if (
+      !confirm(
+        "This clears out existing spark chain logs and recomputes them from scratch under the current rule (one spark per pair per round). Any player over-awarded by the earlier per-question version will have the excess removed. Continue?"
+      )
+    )
+      return;
     setError("");
     setResult(null);
     setLoading(true);
@@ -39,8 +52,8 @@ export default function SparkChainBackfillButton() {
       <SectionHeader
         icon={Sparkles}
         tone="gold"
-        title="Spark Chain Backfill"
-        subtitle="Retroactively awards spark chains for coworkers who answered the same question correctly, even on different days. Safe to run more than once."
+        title="Reset & Rebuild Spark Chains"
+        subtitle="Clears existing spark chain logs and recomputes them from scratch — one spark per pair per round, even across different answer days. Corrects any over-awards from the earlier per-question version. Safe to run more than once."
         as="h3"
         className="mb-4"
       />
@@ -49,13 +62,14 @@ export default function SparkChainBackfillButton() {
         disabled={loading}
         className="flex items-center gap-1.5 rounded-lg bg-ember-500 hover:bg-ember-600 px-4 py-2 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
       >
-        <Sparkles className="h-4 w-4" /> {loading ? "Running..." : "Run Backfill"}
+        <Sparkles className="h-4 w-4" /> {loading ? "Running..." : "Reset & Rebuild"}
       </button>
       {error && <p className="mt-3 text-sm text-rose-400">{error}</p>}
       {result && (
         <p className="mt-3 text-sm text-emerald-400">
-          Checked {result.checked} correct answers — awarded {result.created} new spark chain
-          {result.created === 1 ? "" : "s"}.
+          Cleared {result.removedSparkChains} old spark chain{result.removedSparkChains === 1 ? "" : "s"} (
+          {result.removedLogTransactions} log{result.removedLogTransactions === 1 ? "" : "s"}) — checked {result.checked}{" "}
+          correct answers and rebuilt {result.created} spark chain{result.created === 1 ? "" : "s"}.
         </p>
       )}
     </div>
