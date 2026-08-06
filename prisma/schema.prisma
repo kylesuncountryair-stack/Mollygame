@@ -147,9 +147,21 @@ model SparkChain {
   id        String   @id @default(cuid())
   userAId   String
   userBId   String
-  dateKey   String
+  // Legacy: sparks used to be matched on "answered something correctly the
+  // same day" (Central time). Kept nullable so old rows created under that
+  // system stay intact for history; no longer set on new rows.
+  dateKey   String?
+  // Sparks are now matched on both people answering this SAME question
+  // correctly, rather than just the same calendar day — daily questions
+  // aren't scheduled every day, so two coworkers can easily land on the
+  // same question a day or two apart (see getActiveDailyQuestions' carry-
+  // forward behavior) and should still spark. Required on every row created
+  // going forward; null only on legacy day-based rows from before the
+  // switch.
+  questionId String?
   createdAt DateTime @default(now())
 
-  @@unique([userAId, userBId, dateKey])
+  @@unique([userAId, userBId, questionId])
+  @@index([questionId])
   @@index([dateKey])
 }

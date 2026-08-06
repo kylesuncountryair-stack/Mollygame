@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import StatCard from "@/components/StatCard";
+import SparkChainBackfillButton from "@/components/admin/SparkChainBackfillButton";
 import { HelpCircle, ListChecks, Users, Flame } from "lucide-react";
 
 export default async function AdminOverviewPage() {
@@ -22,6 +23,8 @@ export default async function AdminOverviewPage() {
         <StatCard icon={ListChecks} label="Answers submitted" tone="navy" value={answerCount} />
         <StatCard icon={Flame} label="Total logs issued" tone="ember" value={logSum._sum.amount ?? 0} />
       </div>
+
+      <SparkChainBackfillButton />
     </div>
   );
 }

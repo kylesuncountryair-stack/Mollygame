@@ -79,7 +79,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   // Best-effort: a spark chain is a small bonus, not core game logic, so a
   // failure here shouldn't fail the answer submission itself.
-  const sparkChain = isCorrect ? await tryTriggerSparkChain(session.sub).catch(() => null) : null;
+  const sparkChain = isCorrect ? await tryTriggerSparkChain(session.sub, question.id).catch(() => null) : null;
   const streakBonus = isCorrect ? await tryTriggerStreakBonus(session.sub).catch(() => null) : null;
 
   // Whoever is first (today) to answer any of today's DAILY questions —
