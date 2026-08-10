@@ -13,16 +13,26 @@ import { endOfTodayCT } from "@/lib/bonfire";
 // activeDate timestamp (see centralDateStringToUTC in this same file's
 // neighbor, src/lib/bonfire.ts), so an equality match is a safe way to
 // group them.
-export async function getActiveDailyQuestions() {
+// Just the activeDate of the current round (see getActiveDailyQuestions
+// below), without fetching the full question rows. Used by the answer API
+// route to tell a live/current-round DAILY answer apart from a "catch up"
+// answer for a past round's question (see src/lib/catchUp.ts) — spark
+// chains only fire for the former.
+export async function getCurrentDailyRoundDate(): Promise<Date | null> {
   const latest = await prisma.question.findFirst({
     where: { type: "DAILY", activeDate: { lt: endOfTodayCT() } },
     orderBy: { activeDate: "desc" },
     select: { activeDate: true },
   });
-  if (!latest) return [];
+  return latest?.activeDate ?? null;
+}
+
+export async function getActiveDailyQuestions() {
+  const roundDate = await getCurrentDailyRoundDate();
+  if (!roundDate) return [];
 
   return prisma.question.findMany({
-    where: { type: "DAILY", activeDate: latest.activeDate },
+    where: { type: "DAILY", activeDate: roundDate },
     orderBy: { createdAt: "asc" },
   });
 }

@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { startOfWeekCT, endOfWeekCT, monthLabel } from "@/lib/bonfire";
+import { startOfWeekCT, endOfWeekCT, monthLabel, isCatchUpWindowCT, lastWeekBoundsCT } from "@/lib/bonfire";
 import { getLeaderboardRows } from "@/lib/leaderboard";
 import { getActiveDailyQuestions } from "@/lib/dailyQuestions";
 import { computeStreak } from "@/lib/streak";
@@ -9,6 +9,7 @@ import QuestionCard from "@/components/QuestionCard";
 import NearbyRank from "@/components/NearbyRank";
 import FriendsWidget from "@/components/FriendsWidget";
 import OnboardingTour from "@/components/OnboardingTour";
+import CatchUpBanner from "@/components/CatchUpBanner";
 import { getTodaysUnlockedBonusQuestion } from "@/lib/bonusQuestion";
 import { Award, Flame, Trophy } from "lucide-react";
 
@@ -48,7 +49,26 @@ export default async function DashboardPage() {
   // active DAILY questions, and a BONUS question is scheduled for today.
   const bonusQ = await getTodaysUnlockedBonusQuestion(userId);
 
-  const ids = [...dailyQuestions.map((q) => q.id), weeklyQ?.id, bonusQ?.id].filter(Boolean) as string[];
+  // Sunday and Monday only: DAILY questions from last week (see
+  // lastWeekBoundsCT) this player never got to. Offered as an optional
+  // "catch up" prompt rather than shown automatically — answering them
+  // still counts toward logs/tier/streak, just without spark chains (see
+  // the isLiveRound check in the answer API route).
+  let missedCatchUpQuestions: typeof dailyQuestions = [];
+  if (isCatchUpWindowCT()) {
+    const { start, end } = lastWeekBoundsCT();
+    missedCatchUpQuestions = await prisma.question.findMany({
+      where: { type: "DAILY", activeDate: { gte: start, lt: end }, answers: { none: { userId } } },
+      orderBy: { activeDate: "asc" },
+    });
+  }
+
+  const ids = [
+    ...dailyQuestions.map((q) => q.id),
+    weeklyQ?.id,
+    bonusQ?.id,
+    ...missedCatchUpQuestions.map((q) => q.id),
+  ].filter(Boolean) as string[];
   const answers = ids.length ? await prisma.answer.findMany({ where: { userId, questionId: { in: ids } } }) : [];
 
   const attach = (q: typeof weeklyQ) =>
@@ -84,6 +104,8 @@ export default async function DashboardPage() {
         <h1 className="font-display text-2xl font-bold text-ash-100">Welcome back, {session!.name.split(" ")[0]}</h1>
         <p className="text-ash-500">{monthLabel()} bonfire</p>
       </div>
+
+      <CatchUpBanner questions={missedCatchUpQuestions.map(attach)} />
 
       <div className="grid gap-6 xl:grid-cols-[320px,1fr,1fr]">
         <div className="space-y-4">

@@ -228,3 +228,33 @@ export function daysAgoCT(n: number, date = new Date()): Date {
   const today = startOfTodayCT(date);
   return new Date(today.getTime() - n * 24 * 60 * 60 * 1000);
 }
+
+// True on Sunday and Monday (Central time) — the window during which the
+// dashboard offers to let a player catch up on DAILY questions they missed
+// last week. `startOfTodayCT(...)` always lands in the early-morning UTC
+// hours of the SAME Central calendar day (Central is always behind UTC),
+// so reading the day-of-week off of it gives the correct Central weekday
+// without needing a dedicated zoned-parts export.
+export function isCatchUpWindowCT(date = new Date()): boolean {
+  const dow = startOfTodayCT(date).getUTCDay(); // 0 = Sunday, 1 = Monday
+  return dow === 0 || dow === 1;
+}
+
+// The most recently fully-elapsed Monday-Sunday week, as of `date` — used
+// to find DAILY questions a player missed "last week" during the
+// Sunday/Monday catch-up window (see isCatchUpWindowCT above).
+//
+// Weeks in this app run Monday-Sunday (see startOfWeekCT), which means
+// "last week" means something slightly different depending on which of the
+// two catch-up days it is:
+//   - On Sunday, today IS the last day of the app's current Mon-Sun week,
+//     but by Sunday the work week's daily questions have all already
+//     dropped, so that current week (today included) is the one being
+//     offered.
+//   - On Monday, a brand new app week just started today, so it's the
+//     PREVIOUS Mon-Sun week (ending yesterday) being offered.
+export function lastWeekBoundsCT(date = new Date()): { start: Date; end: Date } {
+  const dow = startOfTodayCT(date).getUTCDay();
+  const anchor = dow === 0 ? date : new Date(startOfWeekCT(date).getTime() - 24 * 60 * 60 * 1000);
+  return { start: startOfWeekCT(anchor), end: endOfWeekCT(anchor) };
+}

@@ -5,6 +5,7 @@ import { getTierForLogs, startOfTodayCT, endOfTodayCT } from "@/lib/bonfire";
 import { tryTriggerSparkChain } from "@/lib/sparkChain";
 import { tryTriggerStreakBonus } from "@/lib/answerStreakBonus";
 import { BONUS_LOGS_REWARD, isEligibleForBonusQuestion, getTodaysUnlockedBonusQuestion } from "@/lib/bonusQuestion";
+import { getCurrentDailyRoundDate } from "@/lib/dailyQuestions";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getCurrentSession();
@@ -77,9 +78,22 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return created;
   });
 
+  // Spark chains are meant to reward playing along DURING the week, not
+  // catching up on a past round after the fact (see the "catch up" prompt
+  // offered on the dashboard Sun/Mon for DAILY questions missed last
+  // week). A DAILY answer only counts as "live" if its question belongs to
+  // the CURRENT round — anything older is being answered late, whether via
+  // the catch-up flow or just an old link, so it's skipped either way.
+  // WEEKLY and BONUS answers are always live (there's no catch-up path for
+  // them), so they're unaffected.
+  const isLiveRound =
+    question.type !== "DAILY" ||
+    (await getCurrentDailyRoundDate().then((d) => !!d && d.getTime() === question.activeDate.getTime()));
+
   // Best-effort: a spark chain is a small bonus, not core game logic, so a
   // failure here shouldn't fail the answer submission itself.
-  const sparkChain = isCorrect ? await tryTriggerSparkChain(session.sub, question.activeDate).catch(() => null) : null;
+  const sparkChain =
+    isCorrect && isLiveRound ? await tryTriggerSparkChain(session.sub, question.activeDate).catch(() => null) : null;
   const streakBonus = isCorrect ? await tryTriggerStreakBonus(session.sub).catch(() => null) : null;
 
   // Whoever is first (today) to answer any of today's DAILY questions —
