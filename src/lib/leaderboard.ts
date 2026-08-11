@@ -8,6 +8,10 @@ export type LeaderboardRow = {
   logs: number;
   tier: string;
   rank: number;
+  // How many players (including this one) share this exact rank. 1 means
+  // no tie. Lets the UI say "3-way tie for #1" instead of just showing the
+  // number, which on its own doesn't make it obvious the rank is shared.
+  tieCount: number;
   avatarColor: string | null;
   avatarIcon: string | null;
 };
@@ -32,14 +36,15 @@ export async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
   const sums = await prisma.logTransaction.groupBy({
     by: ["userId"],
     _sum: { amount: true },
-    // The most recent transaction's timestamp doubles as "when they reached
-    // their current total" — used below to break ties on equal logs.
+    // The most recent transaction's timestamp doesn't affect rank anymore
+    // (see below) — kept only to order tied players consistently within
+    // their shared rank, so the list doesn't jump around between loads.
     _max: { createdAt: true },
   });
   const logsMap = new Map(sums.map((m) => [m.userId, m._sum.amount ?? 0]));
   const reachedAtMap = new Map(sums.map((m) => [m.userId, m._max.createdAt]));
 
-  const rows = users
+  const sorted = users
     .map((u) => {
       const logs = logsMap.get(u.id) ?? 0;
       return {
@@ -48,20 +53,31 @@ export async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
         role: u.role,
         logs,
         tier: getTierForLogs(logs).label,
-        rank: 0,
         avatarColor: u.avatarColor,
         avatarIcon: u.avatarIcon,
         // Falls back to join date for players with zero logs (no
-        // transactions yet) — only ever used as a tie-break, never shown.
+        // transactions yet) — only used to order same-rank players in the
+        // list, never shown and never affects the rank number itself.
         reachedAt: reachedAtMap.get(u.id) ?? u.createdAt,
       };
     })
     .sort((a, b) => {
       if (b.logs !== a.logs) return b.logs - a.logs;
-      // Tied on logs — whoever got there first (earlier timestamp) ranks
-      // higher, same "earliest wins" principle used for spark chain pairing.
       return a.reachedAt.getTime() - b.reachedAt.getTime();
     });
 
-  return rows.map(({ reachedAt, ...r }, i) => ({ ...r, rank: i + 1 }));
+  // Dense ("1223") ranking: everyone with the same logs shares the same
+  // rank — e.g. three people tied at the top are all #1 — but the next
+  // distinct total is just the next number (#2), not skipping ahead by
+  // how many people were tied before it.
+  let rank = 0;
+  const ranked = sorted.map((r, i) => {
+    if (i === 0 || r.logs !== sorted[i - 1].logs) rank++;
+    return { ...r, rank };
+  });
+
+  const tieCounts = new Map<number, number>();
+  for (const r of ranked) tieCounts.set(r.rank, (tieCounts.get(r.rank) ?? 0) + 1);
+
+  return ranked.map(({ reachedAt, ...r }) => ({ ...r, tieCount: tieCounts.get(r.rank) ?? 1 }));
 }

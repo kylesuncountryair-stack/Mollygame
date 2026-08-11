@@ -4,6 +4,22 @@ import Avatar from "@/components/Avatar";
 import SectionHeader from "@/components/SectionHeader";
 import type { LeaderboardRow } from "@/lib/leaderboard";
 
+// "1st", "2nd", "3rd", "4th", ... "11th", "21st", etc.
+function ordinal(n: number): string {
+  const rem100 = n % 100;
+  if (rem100 >= 11 && rem100 <= 13) return `${n}th`;
+  switch (n % 10) {
+    case 1:
+      return `${n}st`;
+    case 2:
+      return `${n}nd`;
+    case 3:
+      return `${n}rd`;
+    default:
+      return `${n}th`;
+  }
+}
+
 export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; selfId: string }) {
   const selfIndex = rows.findIndex((r) => r.id === selfId);
   if (selfIndex === -1) return null;
@@ -11,6 +27,7 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
   const start = Math.max(0, selfIndex - 2);
   const end = Math.min(rows.length, selfIndex + 3);
   const nearby = rows.slice(start, end);
+  const self = rows[selfIndex];
 
   return (
     <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
@@ -18,7 +35,11 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
         icon={Award}
         tone="gold"
         title="Your Rank"
-        subtitle={`#${rows[selfIndex].rank} of ${rows.length}`}
+        subtitle={
+          self.tieCount > 1
+            ? `${self.tieCount}-way tie for ${ordinal(self.rank)} · ${rows.length} playing`
+            : `${ordinal(self.rank)} of ${rows.length}`
+        }
         className="mb-4"
       />
       <div className="space-y-1.5">
@@ -32,7 +53,10 @@ export default function NearbyRank({ rows, selfId }: { rows: LeaderboardRow[]; s
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="w-6 font-semibold text-ash-500">#{row.rank}</span>
+              <span className="flex w-6 flex-col items-start leading-tight">
+                <span className="font-semibold text-ash-500">#{row.rank}</span>
+                {row.tieCount > 1 && <span className="text-[9px] uppercase tracking-wide text-ash-600">tied</span>}
+              </span>
               <Avatar id={row.id} name={row.name} avatarColor={row.avatarColor} avatarIcon={row.avatarIcon} />
               <span className={row.id === selfId ? "font-medium text-white" : "text-ash-100"}>
                 {row.name}

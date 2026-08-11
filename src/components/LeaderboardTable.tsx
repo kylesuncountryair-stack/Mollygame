@@ -9,6 +9,10 @@ import Avatar from "@/components/Avatar";
 export type LeaderboardRow = {
   id: string;
   rank: number;
+  // How many players (including this one) share this rank. Ties all show
+  // the same rank number (standard competition ranking), so this is what
+  // lets the row make that explicit rather than looking like a duplicate.
+  tieCount?: number;
   name: string;
   role?: "PLAYER" | "MANAGER" | "ADMIN";
   logs: number;
@@ -122,6 +126,11 @@ export default function LeaderboardTable({
                   <span className={`flex items-center gap-1 font-semibold ${medalColor[r.rank] ?? "text-ash-300"}`}>
                     {r.rank <= 3 ? <Medal className="h-4 w-4" /> : null}#{r.rank}
                   </span>
+                  {!!r.tieCount && r.tieCount > 1 && (
+                    <span className="block text-[10px] font-medium uppercase tracking-wide text-ash-600">
+                      {r.tieCount}-way tie
+                    </span>
+                  )}
                 </td>
                 <td className="px-5 py-3 text-white">
                   <span className="flex items-center gap-2.5">
