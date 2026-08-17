@@ -8,7 +8,7 @@ import Badge from "@/components/Badge";
 
 export type AdminQuestion = {
   id: string;
-  type: "DAILY" | "WEEKLY" | "BONUS";
+  type: "DAILY" | "WEEKLY" | "BONUS" | "RANDOM";
   format: "MULTIPLE_CHOICE" | "TRUE_FALSE";
   prompt: string;
   options: string[];
@@ -50,7 +50,11 @@ export default function QuestionsList({ questions }: { questions: AdminQuestion[
         >
           <div className="flex-1">
             <div className="mb-2 flex items-center gap-2">
-              <Badge tone={q.type === "WEEKLY" ? "ember" : q.type === "BONUS" ? "gold" : "neutral"}>{q.type}</Badge>
+              <Badge
+                tone={q.type === "WEEKLY" ? "ember" : q.type === "BONUS" ? "gold" : q.type === "RANDOM" ? "success" : "neutral"}
+              >
+                {q.type}
+              </Badge>
               {q.format === "TRUE_FALSE" && <Badge tone="gold">True/False</Badge>}
               <span className="text-xs text-ash-500">
                 {new Date(q.activeDate).toLocaleDateString(undefined, { timeZone: "America/Chicago" })}

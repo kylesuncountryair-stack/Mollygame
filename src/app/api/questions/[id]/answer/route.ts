@@ -6,6 +6,7 @@ import { tryTriggerSparkChain } from "@/lib/sparkChain";
 import { tryTriggerStreakBonus } from "@/lib/answerStreakBonus";
 import { BONUS_LOGS_REWARD, isEligibleForBonusQuestion, getTodaysUnlockedBonusQuestion } from "@/lib/bonusQuestion";
 import { getCurrentDailyRoundDate } from "@/lib/dailyQuestions";
+import { isRandomQuestionWinner, getTodaysRandomQuestionIfWon } from "@/lib/randomQuestion";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getCurrentSession();
@@ -36,6 +37,19 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const isToday = question.activeDate >= startOfTodayCT() && question.activeDate < endOfTodayCT();
     if (!isToday || !(await isEligibleForBonusQuestion(session.sub))) {
       return NextResponse.json({ error: "This bonus question isn't available to you." }, { status: 403 });
+    }
+  }
+
+  // Random questions only ever go to the handful of players randomly
+  // picked for them (see src/lib/randomQuestion.ts) — re-checked here so
+  // it can't be bypassed by POSTing directly to a known random question
+  // id. By the time someone can even see this question to answer it, the
+  // dashboard has already confirmed they won a slot, so this is just
+  // closing the same loophole BONUS closes above.
+  if (question.type === "RANDOM") {
+    const isToday = question.activeDate >= startOfTodayCT() && question.activeDate < endOfTodayCT();
+    if (!isToday || !(await isRandomQuestionWinner(session.sub, question.id))) {
+      return NextResponse.json({ error: "This question isn't available to you." }, { status: 403 });
     }
   }
 
@@ -104,6 +118,14 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const bonusUnlocked =
     question.type === "DAILY" ? await getTodaysUnlockedBonusQuestion(session.sub).catch(() => null) : null;
 
+  // Answering a DAILY question correctly is what makes someone eligible
+  // for today's RANDOM question (if there is one, and they're not
+  // excluded for being a top-ranked player) — this both ticks the random
+  // draw forward immediately and lets the client show a "you were picked!"
+  // popup right away instead of waiting for the next dashboard load.
+  const randomUnlocked =
+    isCorrect && question.type === "DAILY" ? await getTodaysRandomQuestionIfWon(session.sub).catch(() => null) : null;
+
   return NextResponse.json({
     isCorrect,
     logsAwarded,
@@ -116,5 +138,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     sparkChain,
     streakBonus,
     bonusUnlocked: bonusUnlocked ? { id: bonusUnlocked.id, prompt: bonusUnlocked.prompt } : null,
+    randomUnlocked: randomUnlocked
+      ? { id: randomUnlocked.id, prompt: randomUnlocked.prompt, logsReward: randomUnlocked.logsReward }
+      : null,
   });
 }

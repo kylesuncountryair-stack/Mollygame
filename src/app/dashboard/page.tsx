@@ -11,6 +11,7 @@ import FriendsWidget from "@/components/FriendsWidget";
 import OnboardingTour from "@/components/OnboardingTour";
 import CatchUpBanner from "@/components/CatchUpBanner";
 import { getTodaysUnlockedBonusQuestion } from "@/lib/bonusQuestion";
+import { getTodaysRandomQuestionIfWon } from "@/lib/randomQuestion";
 import { Award, Flame, Trophy } from "lucide-react";
 
 export default async function DashboardPage() {
@@ -49,6 +50,11 @@ export default async function DashboardPage() {
   // active DAILY questions, and a BONUS question is scheduled for today.
   const bonusQ = await getTodaysUnlockedBonusQuestion(userId);
 
+  // Only set when a RANDOM question is scheduled for today AND this user is
+  // one of the (at most two) players randomly picked for it — everyone else
+  // simply never sees it, so no "you weren't picked" messaging is needed.
+  const randomQ = await getTodaysRandomQuestionIfWon(userId);
+
   // Sunday and Monday only: DAILY questions from last week (see
   // lastWeekBoundsCT) this player never got to. Offered as an optional
   // "catch up" prompt rather than shown automatically — answering them
@@ -67,6 +73,7 @@ export default async function DashboardPage() {
     ...dailyQuestions.map((q) => q.id),
     weeklyQ?.id,
     bonusQ?.id,
+    randomQ?.id,
     ...missedCatchUpQuestions.map((q) => q.id),
   ].filter(Boolean) as string[];
   const answers = ids.length ? await prisma.answer.findMany({ where: { userId, questionId: { in: ids } } }) : [];
@@ -156,6 +163,7 @@ export default async function DashboardPage() {
 
         <div className="space-y-6">
           {bonusQ && <QuestionCard question={attach(bonusQ)} />}
+          {randomQ && <QuestionCard question={attach(randomQ)} />}
           {dailyQuestions.length > 0 ? (
             dailyQuestions.map((q) => <QuestionCard key={q.id} question={attach(q)} />)
           ) : (

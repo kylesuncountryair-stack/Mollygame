@@ -6,7 +6,7 @@ import { Plus, Trash2 } from "lucide-react";
 
 export type QuestionFormValue = {
   id?: string;
-  type: "DAILY" | "WEEKLY" | "BONUS";
+  type: "DAILY" | "WEEKLY" | "BONUS" | "RANDOM";
   format?: "MULTIPLE_CHOICE" | "TRUE_FALSE";
   prompt: string;
   options: string[];
@@ -38,7 +38,7 @@ export default function QuestionForm({
   initialActiveDate?: string;
 }) {
   const router = useRouter();
-  const [type, setType] = useState<"DAILY" | "WEEKLY" | "BONUS">(initial?.type ?? "DAILY");
+  const [type, setType] = useState<"DAILY" | "WEEKLY" | "BONUS" | "RANDOM">(initial?.type ?? "DAILY");
   const [format, setFormat] = useState<"MULTIPLE_CHOICE" | "TRUE_FALSE">(initial?.format ?? "MULTIPLE_CHOICE");
   const [prompt, setPrompt] = useState(initial?.prompt ?? "");
   const [options, setOptions] = useState<string[]>(initial?.options?.length ? initial.options : ["", ""]);
@@ -57,9 +57,13 @@ export default function QuestionForm({
     setOptions((prev) => prev.map((o, idx) => (idx === i ? value : o)));
   }
 
-  function changeType(next: "DAILY" | "WEEKLY" | "BONUS") {
+  function changeType(next: "DAILY" | "WEEKLY" | "BONUS" | "RANDOM") {
     if (next === type) return;
+    // BONUS forces a fixed reward server-side, so its field is locked to 3
+    // here too. RANDOM only pre-fills a sensible default (2) — the admin can
+    // still change it, since it's genuinely editable unlike BONUS.
     if (next === "BONUS") setLogsReward(3);
+    else if (next === "RANDOM" && type !== "RANDOM") setLogsReward(2);
     else if (type === "BONUS" && logsReward === 3) setLogsReward(1);
     setType(next);
   }
@@ -121,7 +125,7 @@ export default function QuestionForm({
         setOptions(["", ""]);
         setCorrectIndex(0);
         setExplanation("");
-        setLogsReward(1);
+        setLogsReward(type === "BONUS" ? 3 : type === "RANDOM" ? 2 : 1);
       }
       router.refresh();
       onDone?.();
@@ -137,12 +141,13 @@ export default function QuestionForm({
           <label className="mb-1 block text-xs font-medium text-ash-400">Type</label>
           <select
             value={type}
-            onChange={(e) => changeType(e.target.value as "DAILY" | "WEEKLY" | "BONUS")}
+            onChange={(e) => changeType(e.target.value as "DAILY" | "WEEKLY" | "BONUS" | "RANDOM")}
             className="w-full rounded-lg border border-ash-800 bg-bg-panel px-3 py-2 text-sm text-ash-100"
           >
             <option value="DAILY">Daily</option>
             <option value="WEEKLY">Weekly</option>
             <option value="BONUS">Bonus</option>
+            <option value="RANDOM">Random</option>
           </select>
         </div>
         <div>
@@ -173,6 +178,14 @@ export default function QuestionForm({
         <p className="rounded-lg border border-gold-500/30 bg-gold-500/10 px-3 py-2 text-xs text-gold-300">
           Bonus questions are offered only to the first player who answers that day&apos;s active Daily question, and always
           award 3 logs.
+        </p>
+      )}
+
+      {type === "RANDOM" && (
+        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
+          Random questions are handed out to 2 players who answer that day&apos;s active Daily question correctly, chosen at
+          random from anyone outside the current top 5 on the leaderboard — meant to level the playing field. Logs awarded
+          are fully editable below (defaults to 2).
         </p>
       )}
 

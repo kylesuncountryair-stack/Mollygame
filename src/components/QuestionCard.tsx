@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, CalendarRange, Check, Flame, Gift, HelpCircle, Sparkles, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import { CalendarDays, CalendarRange, Check, Dices, Flame, Gift, HelpCircle, Sparkles, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import Badge from "./Badge";
 import Confetti from "./Confetti";
 import TierUpBanner from "./TierUpBanner";
 import WrongAnswerModal from "./WrongAnswerModal";
 import StreakBonusModal from "./StreakBonusModal";
 import BonusUnlockedModal from "./BonusUnlockedModal";
+import RandomQuestionUnlockedModal from "./RandomQuestionUnlockedModal";
 
 type Answered = { selectedIndex: number; isCorrect: boolean; logsAwarded: number } | null;
 type TierUp = { label: string } | null;
@@ -16,10 +17,11 @@ type SparkChain = { friendName: string; bonus: number } | null;
 type WrongAnswerInfo = { correctIndex: number; explanation: string | null } | null;
 type StreakBonus = { count: number; bonus: number } | null;
 type BonusUnlocked = { id: string; prompt: string } | null;
+type RandomUnlocked = { id: string; prompt: string; logsReward: number } | null;
 
 export type QuestionData = {
   id: string;
-  type: "DAILY" | "WEEKLY" | "BONUS";
+  type: "DAILY" | "WEEKLY" | "BONUS" | "RANDOM";
   format?: "MULTIPLE_CHOICE" | "TRUE_FALSE";
   prompt: string;
   options: string[];
@@ -42,6 +44,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   const [wrongAnswer, setWrongAnswer] = useState<WrongAnswerInfo>(null);
   const [streakBonus, setStreakBonus] = useState<StreakBonus>(null);
   const [bonusUnlocked, setBonusUnlocked] = useState<BonusUnlocked>(null);
+  const [randomUnlocked, setRandomUnlocked] = useState<RandomUnlocked>(null);
   // The correct/incorrect banner only shows right after a fresh submission
   // in this session, and fades out on its own after 30 seconds. It starts
   // hidden (not visible) on mount — including when the server tells us this
@@ -71,10 +74,10 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
   // banner, then start collapsing the card away.
   useEffect(() => {
     if (!justAnswered || !result) return;
-    if (tierUp || streakBonus || wrongAnswer || bonusUnlocked) return;
+    if (tierUp || streakBonus || wrongAnswer || bonusUnlocked || randomUnlocked) return;
     const timer = setTimeout(() => setCollapsing(true), 3500);
     return () => clearTimeout(timer);
-  }, [justAnswered, result, tierUp, streakBonus, wrongAnswer, bonusUnlocked]);
+  }, [justAnswered, result, tierUp, streakBonus, wrongAnswer, bonusUnlocked, randomUnlocked]);
 
   // Let the collapse transition finish playing before fully removing the
   // card from the layout.
@@ -100,7 +103,9 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
       ? { tone: "gold" as const, Icon: CalendarRange, label: "Weekly Question" }
       : question.type === "BONUS"
         ? { tone: "navy" as const, Icon: Gift, label: "Bonus Question" }
-        : { tone: "ember" as const, Icon: CalendarDays, label: "Daily Question" };
+        : question.type === "RANDOM"
+          ? { tone: "success" as const, Icon: Dices, label: "Random Question" }
+          : { tone: "ember" as const, Icon: CalendarDays, label: "Daily Question" };
 
   async function submit() {
     if (selected === null) return;
@@ -124,6 +129,7 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
       if (!data.isCorrect) setWrongAnswer({ correctIndex: data.correctIndex, explanation: data.explanation ?? null });
       if (data.streakBonus) setStreakBonus(data.streakBonus);
       if (data.bonusUnlocked) setBonusUnlocked(data.bonusUnlocked);
+      if (data.randomUnlocked) setRandomUnlocked(data.randomUnlocked);
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -280,6 +286,14 @@ export default function QuestionCard({ question }: { question: QuestionData }) {
           answer was correct. */}
       {justAnswered && !tierUp && !streakBonus && !wrongAnswer && bonusUnlocked && (
         <BonusUnlockedModal onClose={() => setBonusUnlocked(null)} />
+      )}
+
+      {/* Same reasoning as bonusUnlocked above — shown last, and only once
+          nothing higher-priority is showing. randomUnlocked fires when this
+          DAILY answer was correct and won the player one of today's random
+          slots. */}
+      {justAnswered && !tierUp && !streakBonus && !wrongAnswer && !bonusUnlocked && randomUnlocked && (
+        <RandomQuestionUnlockedModal logsReward={randomUnlocked.logsReward} onClose={() => setRandomUnlocked(null)} />
       )}
     </div>
     </div>

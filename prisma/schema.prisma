@@ -26,6 +26,16 @@ enum QuestionType {
   // Always worth a fixed 3 logs regardless of its own logsReward value —
   // enforced server-side in the answer API route.
   BONUS
+  // Another special one-off question, scheduled like a DAILY question.
+  // Rather than going to everyone (or the fastest player, like BONUS),
+  // it's handed out to RANDOM_WINNER_SLOTS (see src/lib/randomQuestion.ts)
+  // randomly-chosen players who answer that day's DAILY question(s)
+  // correctly — explicitly excluding anyone currently in the top ranks of
+  // the leaderboard, to give people who aren't already ahead a chance at
+  // extra logs. Scored normally via its own logsReward (admin-editable,
+  // defaults to 2 in the admin form) — unlike BONUS, nothing forces this
+  // server-side.
+  RANDOM
 }
 
 // Controls how a question is presented and answered. TRUE_FALSE questions
@@ -172,4 +182,22 @@ model SparkChain {
   @@index([roundDate])
   @@index([questionId])
   @@index([dateKey])
+}
+
+// Persists who's been randomly picked to receive a RANDOM-type question,
+// since (unlike everything else in this app) the pick genuinely can't be
+// re-derived from other data — it's a one-time random draw that has to be
+// remembered once made. Winners are only ever ADDED as open slots get
+// filled (see fillRandomWinnerSlots in src/lib/randomQuestion.ts), never
+// replaced or removed, so once someone's told they won, that's final. No
+// relation fields to User/Question, same lightweight reasoning as
+// SparkChain above.
+model RandomQuestionWinner {
+  id         String   @id @default(cuid())
+  questionId String
+  userId     String
+  createdAt  DateTime @default(now())
+
+  @@unique([questionId, userId])
+  @@index([questionId])
 }

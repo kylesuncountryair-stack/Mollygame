@@ -9,7 +9,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const { type, format, prompt, options, correctIndex, explanation, logsReward, activeDate } = body || {};
 
   const data: Record<string, unknown> = {};
-  if (type && ["DAILY", "WEEKLY", "BONUS"].includes(type)) data.type = type;
+  if (type && ["DAILY", "WEEKLY", "BONUS", "RANDOM"].includes(type)) data.type = type;
   if (format && ["MULTIPLE_CHOICE", "TRUE_FALSE"].includes(format)) data.format = format;
   if (prompt) data.prompt = prompt;
   if (Array.isArray(options)) data.options = options;
