@@ -59,7 +59,7 @@ function writeParticipationSheet(sheet: ExcelJS.Worksheet, columns: Column[]) {
 // dashboard's own carry-forward logic already treats that answer.
 export async function buildParticipationReport(
   monthsAgo = 0
-): Promise<{ buffer: Buffer; monthStamp: string; monthLabel: string }> {
+): Promise<{ buffer: Uint8Array; monthStamp: string; monthLabel: string }> {
   const { start: monthStart, end: monthEnd, label } = monthBoundsCT(monthsAgo);
 
   // --- Weekly tab ---
@@ -124,7 +124,12 @@ export async function buildParticipationReport(
   writeParticipationSheet(workbook.addWorksheet("Weekly"), weeklyColumns);
   writeParticipationSheet(workbook.addWorksheet("Daily"), dailyColumns);
 
-  const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+  // Wrapped in a fresh Uint8Array (rather than returned as a Node Buffer)
+  // so its type lines up cleanly with NextResponse's BodyInit — passing a
+  // Buffer directly trips up TypeScript's DOM-lib BufferSource checking in
+  // this project's tsconfig (Buffer<ArrayBufferLike> vs the stricter
+  // ArrayBuffer the DOM types expect).
+  const buffer = new Uint8Array(await workbook.xlsx.writeBuffer());
   const monthStamp = monthStart.toLocaleDateString("en-CA", { timeZone: "America/Chicago" }).slice(0, 7); // YYYY-MM
 
   return { buffer, monthStamp, monthLabel: label };
