@@ -11,9 +11,16 @@ export async function GET() {
 
   const { buffer, monthStamp } = await buildParticipationReport();
 
-  return new NextResponse(buffer, {
+  // Wrapped in a Blob rather than passed as a raw Uint8Array/Buffer —
+  // TypeScript's DOM-lib BodyInit type is overly strict about the
+  // ArrayBuffer generic on typed arrays in this project's TS version, but
+  // Blob sidesteps that entirely and is accepted cleanly.
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  return new NextResponse(blob, {
     headers: {
-      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": `attachment; filename="bonfire-participation-${monthStamp}.xlsx"`,
     },
   });
