@@ -117,10 +117,16 @@ export default async function AdminReportsPage() {
               </p>
             </div>
           ) : (
-            <div className="flex items-end gap-2" style={{ height: 140 }}>
+            <div className="flex items-end gap-2" style={{ height: 156 }}>
               {days.map((d) => (
-                <div key={d.key} className="flex flex-1 flex-col items-center gap-1.5" title={`${d.label}: ${d.count} players`}>
-                  <div className="flex w-full flex-1 items-end">
+                <div key={d.key} className="flex flex-1 flex-col items-center gap-1" title={`${d.label}: ${d.count} players`}>
+                  <span className="text-[11px] font-semibold text-ash-300">{d.count}</span>
+                  {/* Explicit pixel height (not flex-1) — this row's parent
+                      uses items-end rather than stretch, so a flex-1 child
+                      never resolves a definite height for the bar's
+                      height:X% to size against, and every bar collapses to
+                      just its minHeight floor regardless of count. */}
+                  <div className="flex w-full items-end" style={{ height: 112 }}>
                     <div
                       className="w-full rounded-t-md bg-gradient-to-t from-ember-600 to-ember-400 transition-all"
                       style={{ height: `${(d.count / maxDayCount) * 100}%`, minHeight: d.count > 0 ? 4 : 0 }}
