@@ -59,7 +59,7 @@ function writeParticipationSheet(sheet: ExcelJS.Worksheet, columns: Column[]) {
 // dashboard's own carry-forward logic already treats that answer.
 export async function buildParticipationReport(
   monthsAgo = 0
-): Promise<{ buffer: Uint8Array; monthStamp: string; monthLabel: string }> {
+): Promise<{ buffer: ArrayBuffer; monthStamp: string; monthLabel: string }> {
   const { start: monthStart, end: monthEnd, label } = monthBoundsCT(monthsAgo);
 
   // --- Weekly tab ---
@@ -124,12 +124,15 @@ export async function buildParticipationReport(
   writeParticipationSheet(workbook.addWorksheet("Weekly"), weeklyColumns);
   writeParticipationSheet(workbook.addWorksheet("Daily"), dailyColumns);
 
-  // Wrapped in a fresh Uint8Array (rather than returned as a Node Buffer)
-  // so its type lines up cleanly with NextResponse's BodyInit — passing a
-  // Buffer directly trips up TypeScript's DOM-lib BufferSource checking in
-  // this project's tsconfig (Buffer<ArrayBufferLike> vs the stricter
-  // ArrayBuffer the DOM types expect).
-  const buffer = new Uint8Array(await workbook.xlsx.writeBuffer());
+  // Copied into a brand-new, plain ArrayBuffer (rather than returned as a
+  // Node Buffer or a Uint8Array wrapping one) so its type is unambiguous.
+  // Node's Buffer/Uint8Array are typed as Uint8Array<ArrayBufferLike>,
+  // which this project's TypeScript/DOM-lib version refuses to accept as
+  // BodyInit/BlobPart (it wants the plain, non-generic ArrayBuffer) — a
+  // fresh ArrayBuffer sidesteps that generic entirely.
+  const raw = await workbook.xlsx.writeBuffer();
+  const buffer = new ArrayBuffer(raw.byteLength);
+  new Uint8Array(buffer).set(raw as unknown as ArrayLike<number>);
   const monthStamp = monthStart.toLocaleDateString("en-CA", { timeZone: "America/Chicago" }).slice(0, 7); // YYYY-MM
 
   return { buffer, monthStamp, monthLabel: label };
