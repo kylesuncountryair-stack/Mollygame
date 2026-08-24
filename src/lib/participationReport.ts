@@ -15,48 +15,70 @@ function dayLabel(date: Date): string {
   return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "America/Chicago" });
 }
 
-type Column = { label: string; names: string[] };
+type ParticipantRow = { name: string; logs: number };
+type Column = { label: string; rows: ParticipantRow[]; totalPlayers: number; totalLogs: number };
 
-// Writes one column per week/day, with the column header in row 1 and
-// participant names stacked vertically underneath it — matching what was
-// asked for over a matrix/checkbox layout. Columns of different lengths
-// just leave the shorter ones blank below their last name.
+// Writes a 4-column block per week/day: Player, Logs Earned (stacked one
+// row per participant), then Total Players / Total Logs — two single
+// summary values placed alongside the first data row rather than repeated
+// down the whole column, since they're one number per week/day, not a
+// per-player list. Row 1 is the week/day label merged across the block;
+// row 2 has the sub-column headers; data starts at row 3.
 function writeParticipationSheet(sheet: ExcelJS.Worksheet, columns: Column[]) {
   if (columns.length === 0) {
     sheet.getRow(1).getCell(1).value = "No data for this month.";
     return;
   }
+
+  const subHeaders = ["Player", "Logs Earned", "Total Players", "Total Logs"];
+  const colWidths = [24, 13, 14, 12];
+
   columns.forEach((col, i) => {
-    const cell = sheet.getRow(1).getCell(i + 1);
-    cell.value = col.label;
-    cell.font = { bold: true };
-    sheet.getColumn(i + 1).width = 24;
-  });
-  const maxRows = Math.max(0, ...columns.map((c) => c.names.length));
-  for (let r = 0; r < maxRows; r++) {
-    columns.forEach((col, i) => {
-      const name = col.names[r];
-      if (name) sheet.getRow(r + 2).getCell(i + 1).value = name;
+    const base = i * 4 + 1;
+
+    sheet.mergeCells(1, base, 1, base + 3);
+    const labelCell = sheet.getRow(1).getCell(base);
+    labelCell.value = col.label;
+    labelCell.font = { bold: true };
+    labelCell.alignment = { horizontal: "center" };
+
+    subHeaders.forEach((h, j) => {
+      const cell = sheet.getRow(2).getCell(base + j);
+      cell.value = h;
+      cell.font = { bold: true };
+      sheet.getColumn(base + j).width = colWidths[j];
     });
-  }
+
+    col.rows.forEach((row, r) => {
+      sheet.getRow(r + 3).getCell(base).value = row.name;
+      sheet.getRow(r + 3).getCell(base + 1).value = row.logs;
+    });
+
+    // Single summary values, placed once alongside the first data row.
+    sheet.getRow(3).getCell(base + 2).value = col.totalPlayers;
+    sheet.getRow(3).getCell(base + 3).value = col.totalLogs;
+  });
 }
 
 // Builds the admin "Participation Report" workbook for the current
 // (Central-time) calendar month — a Weekly tab and a Daily tab, each with
-// one column per week/day and the participating players' names stacked
-// underneath. Only PLAYER-role accounts are counted, same scoping as the
-// leaderboard and the existing players CSV export.
+// one 4-column block per week/day: participant names, logs each of them
+// earned, and a Total Players / Total Logs summary for that week/day.
+// Only PLAYER-role accounts are counted, same scoping as the leaderboard
+// and the existing players CSV export.
 //
 // Weekly tab: a player counts as having participated in a Mon-Sun week if
 // they answered ANYTHING at all (any question type) at any point during
-// that week, based on when they actually answered.
+// that week, based on when they actually answered. Their "logs earned" for
+// that week is the sum of logsAwarded across all of those answers.
 //
 // Daily tab: a player counts as having participated in a given day's DAILY
 // question round if they answered one of that round's questions, credited
 // back to the round's *scheduled* activeDate rather than the day they
 // actually answered — so someone answering Monday's carried-forward
 // question on Tuesday still shows up under Monday, matching how the
-// dashboard's own carry-forward logic already treats that answer.
+// dashboard's own carry-forward logic already treats that answer. Their
+// "logs earned" is the sum of logsAwarded across that round's question(s).
 export async function buildParticipationReport(
   monthsAgo = 0
 ): Promise<{ buffer: ArrayBuffer; monthStamp: string; monthLabel: string }> {
@@ -75,17 +97,24 @@ export async function buildParticipationReport(
       answeredAt: { gte: weeks[0]?.start ?? monthStart, lt: weeks[weeks.length - 1]?.end ?? monthEnd },
       user: { role: "PLAYER" },
     },
-    select: { answeredAt: true, user: { select: { id: true, name: true } } },
+    select: { answeredAt: true, logsAwarded: true, user: { select: { id: true, name: true } } },
   });
 
   const weeklyColumns: Column[] = weeks.map((w) => {
-    const participants = new Map<string, string>();
+    const participants = new Map<string, ParticipantRow>();
     for (const a of weeklyAnswers) {
-      if (a.answeredAt >= w.start && a.answeredAt < w.end) participants.set(a.user.id, a.user.name);
+      if (a.answeredAt >= w.start && a.answeredAt < w.end) {
+        const existing = participants.get(a.user.id);
+        if (existing) existing.logs += a.logsAwarded;
+        else participants.set(a.user.id, { name: a.user.name, logs: a.logsAwarded });
+      }
     }
+    const rows = Array.from(participants.values()).sort((a, b) => a.name.localeCompare(b.name));
     return {
       label: weekLabel(w.start, w.end),
-      names: Array.from(participants.values()).sort((a, b) => a.localeCompare(b)),
+      rows,
+      totalPlayers: rows.length,
+      totalLogs: rows.reduce((sum, r) => sum + r.logs, 0),
     };
   });
 
@@ -103,20 +132,27 @@ export async function buildParticipationReport(
   const dailyAnswers = dailyQuestions.length
     ? await prisma.answer.findMany({
         where: { questionId: { in: dailyQuestions.map((q) => q.id) }, user: { role: "PLAYER" } },
-        select: { questionId: true, user: { select: { id: true, name: true } } },
+        select: { questionId: true, logsAwarded: true, user: { select: { id: true, name: true } } },
       })
     : [];
 
   const questionRoundKey = new Map(dailyQuestions.map((q) => [q.id, q.activeDate.getTime()]));
 
   const dailyColumns: Column[] = roundDates.map((d) => {
-    const participants = new Map<string, string>();
+    const participants = new Map<string, ParticipantRow>();
     for (const a of dailyAnswers) {
-      if (questionRoundKey.get(a.questionId) === d.getTime()) participants.set(a.user.id, a.user.name);
+      if (questionRoundKey.get(a.questionId) === d.getTime()) {
+        const existing = participants.get(a.user.id);
+        if (existing) existing.logs += a.logsAwarded;
+        else participants.set(a.user.id, { name: a.user.name, logs: a.logsAwarded });
+      }
     }
+    const rows = Array.from(participants.values()).sort((a, b) => a.name.localeCompare(b.name));
     return {
       label: dayLabel(d),
-      names: Array.from(participants.values()).sort((a, b) => a.localeCompare(b)),
+      rows,
+      totalPlayers: rows.length,
+      totalLogs: rows.reduce((sum, r) => sum + r.logs, 0),
     };
   });
 
