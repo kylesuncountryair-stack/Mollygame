@@ -104,23 +104,33 @@ export default async function AdminReportsPage() {
           icon={BarChart3}
           tone="navy"
           title="Daily Participation"
-          subtitle="Unique players who answered anything, last 14 days"
+          subtitle={`Unique players who answered anything, ${days[0]?.label} – ${days[days.length - 1]?.label}`}
           className="mb-4"
         />
         <div className="rounded-2xl border border-ash-900 bg-bg-card shadow-card p-6">
-          <div className="flex items-end gap-2" style={{ height: 140 }}>
-            {days.map((d) => (
-              <div key={d.key} className="flex flex-1 flex-col items-center gap-1.5" title={`${d.label}: ${d.count} players`}>
-                <div className="flex w-full flex-1 items-end">
-                  <div
-                    className="w-full rounded-t-md bg-gradient-to-t from-ember-600 to-ember-400 transition-all"
-                    style={{ height: `${(d.count / maxDayCount) * 100}%`, minHeight: d.count > 0 ? 4 : 0 }}
-                  />
+          {recentAnswers.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-6 text-center text-ash-500">
+              <BarChart3 className="h-5 w-5 text-ash-600" />
+              <p className="text-sm">
+                No answers recorded between {days[0]?.label} and {days[days.length - 1]?.label}
+                {answers.length > 0 && ` (${answers.length} total answers exist, all outside this window)`}.
+              </p>
+            </div>
+          ) : (
+            <div className="flex items-end gap-2" style={{ height: 140 }}>
+              {days.map((d) => (
+                <div key={d.key} className="flex flex-1 flex-col items-center gap-1.5" title={`${d.label}: ${d.count} players`}>
+                  <div className="flex w-full flex-1 items-end">
+                    <div
+                      className="w-full rounded-t-md bg-gradient-to-t from-ember-600 to-ember-400 transition-all"
+                      style={{ height: `${(d.count / maxDayCount) * 100}%`, minHeight: d.count > 0 ? 4 : 0 }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-ash-500">{d.label}</span>
                 </div>
-                <span className="text-[10px] text-ash-500">{d.label}</span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
